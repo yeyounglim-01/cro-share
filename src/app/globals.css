@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+@theme {
+  /* Warm watercolor palette */
+  --color-cream: #FAF6F1;
+  --color-paper: #FFFFFF;
+  --color-rose: #C97B6B;
+  --color-rose-light: #F0D5CC;
+  --color-rose-dark: #A85C4E;
+  --color-blush: #F5E0D8;
+  --color-lavender: #D4C5E2;
+  --color-lavender-light: #EDE6F5;
+  --color-sage: #B8CCB8;
+  --color-sage-light: #DDF0DD;
+  --color-tan: #D4B896;
+  --color-ink: #5C3317;
+  --color-ink-mid: #8B5E3C;
+  --color-ink-light: #B08060;
+  --color-warm-border: #EAD8CC;
+  --color-warm-gray: #F2EDE8;
+
+  --font-sketch: 'Caveat', cursive;
+  --font-body: 'Nunito', sans-serif;
+  --font-serif: 'Noto Serif KR', serif;
+}
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  html {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--color-cream);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+  }
+}
+
+/* Range slider */
+input[type='range'] {
+  -webkit-appearance: none;
+  height: 5px;
+  background: var(--color-warm-border);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 17px; height: 17px;
+  background: var(--color-rose);
+  border-radius: 50%;
+  border: 2.5px solid white;
+  box-shadow: 0 1px 5px rgba(201,123,107,0.35);
+  transition: transform 0.15s;
+  cursor: pointer;
+}
+input[type='range']::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--color-cream); }
+::-webkit-scrollbar-thumb { background: var(--color-warm-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-rose); }
+
+/* ── Pinterest-style masonry ── */
+.masonry-grid {
+  columns: 2;
+  column-gap: 14px;
+}
+@media (min-width: 640px)  { .masonry-grid { columns: 3; } }
+@media (min-width: 1024px) { .masonry-grid { columns: 4; } }
+@media (min-width: 1280px) { .masonry-grid { columns: 5; } }
+
+.masonry-grid > * {
+  break-inside: avoid;
+  margin-bottom: 14px;
+  display: block;
+}
+
+/* 카드 hover lift */
+.pin-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.pin-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 40px rgba(92,51,23,0.16) !important;
+}
