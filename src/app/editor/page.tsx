@@ -10,7 +10,8 @@ import ExportPanel from '@/components/export/ExportPanel';
 import { useKnitChartStore } from '@/hooks/useKnitChartState';
 import { imageToColorChart } from '@/lib/imageProcessing/imageToColorChart';
 import { useDrawTool } from '@/hooks/useDrawTool';
-import { saveToGallery } from '@/lib/gallery/store';
+import { saveToGallery, updateGalleryItem } from '@/lib/gallery/store';
+import { generateAIThumbnail } from '@/lib/ai/utils';
 import type { ChartCell } from '@/types/knit';
 
 type AppMode = 'select' | 'image-upload' | 'draw-setup' | 'editor';
@@ -50,8 +51,10 @@ export default function EditorPage() {
   }, []);
   const [shared, setShared] = useState(false);
 
-  const handleShare = useCallback(() => {
+  const handleShare = useCallback(async () => {
     if (!chart) return;
+
+    // 1. 기본 정보 저장 (AI 생성 진행 중 상태로)
     saveToGallery({
       id: chart.id,
       chart,
@@ -61,9 +64,39 @@ export default function EditorPage() {
       likes: 0,
       likedByMe: false,
       createdAt: new Date().toISOString().slice(0, 10),
+      isGeneratingThumbnail: true,
     });
+
     setShared(true);
     setTimeout(() => setShared(false), 3000);
+
+    // 2. 백그라운드에서 AI 썸네일 생성 (비동기)
+    // 사용자는 UI를 계속 사용할 수 있음
+    generateAIThumbnail(chart, (status) => {
+      console.log(`[공유] AI 썸네일: ${status}`);
+    })
+      .then((imageUrl) => {
+        if (imageUrl) {
+          // 3. AI 썸네일 생성 성공 → 갤러리 아이템 업데이트
+          updateGalleryItem(chart.id, {
+            aiThumbnailUrl: imageUrl,
+            isGeneratingThumbnail: false,
+          });
+          console.log('[공유] AI 썸네일 생성 완료:', imageUrl);
+        } else {
+          // 4. AI 썸네일 생성 실패 → 기존 도안 썸네일 사용
+          updateGalleryItem(chart.id, {
+            isGeneratingThumbnail: false,
+          });
+          console.log('[공유] AI 썸네일 생성 실패 (기존 도안 사용)');
+        }
+      })
+      .catch((error) => {
+        console.error('[공유] 예상치 못한 에러:', error);
+        updateGalleryItem(chart.id, {
+          isGeneratingThumbnail: false,
+        });
+      });
   }, [chart]);
 
   // 이미지 선택 즉시 자동 생성 — 비율 보존 격자 크기 자동 계산

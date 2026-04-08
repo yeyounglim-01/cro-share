@@ -28,8 +28,58 @@ export default function PatternCard({ item, onLike, onOpen }: Props) {
       onClick={() => onOpen(item)}
     >
       {/* ── 썸네일 영역 ── */}
-      <div style={{ position: 'relative', background: 'var(--color-warm-gray)' }}>
-        <KnitSymbolChart chartData={item.chart} compact />
+      <div style={{ position: 'relative', background: 'var(--color-warm-gray)', aspectRatio: '1' }}>
+        {/* AI 썸네일 표시 */}
+        {item.aiThumbnailUrl ? (
+          <img
+            src={item.aiThumbnailUrl}
+            alt={item.title}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        ) : item.isGeneratingThumbnail ? (
+          // AI 생성 중: 로딩 스피너 + 기존 도안 배경
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            background: 'var(--color-warm-gray)',
+          }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                border: '2px solid rgba(201, 123, 107, 0.2)',
+                borderTop: '2px solid var(--color-rose)',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+              }}
+            />
+            <p
+              style={{
+                marginTop: 8,
+                fontSize: 12,
+                color: 'var(--color-ink-light)',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              AI 썸네일 생성 중...
+            </p>
+            <style>{`
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
+        ) : (
+          // 기본: 도안 표시
+          <KnitSymbolChart chartData={item.chart} compact />
+        )}
 
         {/* 어두운 오버레이 */}
         <div style={{

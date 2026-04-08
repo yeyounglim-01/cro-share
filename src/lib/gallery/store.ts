@@ -10,6 +10,8 @@ export interface GalleryItem {
   likedByMe: boolean;
   createdAt: string;
   description?: string;
+  aiThumbnailUrl?: string;        // AI 생성 썸네일 이미지 URL
+  isGeneratingThumbnail?: boolean; // AI 생성 진행 중 여부
 }
 
 const KEY = 'knitpattern-gallery';
@@ -52,6 +54,21 @@ export function toggleLike(id: string): GalleryItem[] {
     }
     return stored;
   } catch { return []; }
+}
+
+export function updateGalleryItem(id: string, updates: Partial<GalleryItem>): GalleryItem | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(KEY);
+    const stored: GalleryItem[] = raw ? JSON.parse(raw) : [];
+    const idx = stored.findIndex(s => s.id === id);
+    if (idx >= 0) {
+      stored[idx] = { ...stored[idx], ...updates };
+      localStorage.setItem(KEY, JSON.stringify(stored));
+      return stored[idx];
+    }
+    return null;
+  } catch { return null; }
 }
 
 // ── Mock gallery data ──────────────────────────────────────────────────
