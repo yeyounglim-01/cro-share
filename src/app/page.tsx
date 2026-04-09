@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import PatternCard from '@/components/gallery/PatternCard';
@@ -11,14 +11,39 @@ import { loadGallery, toggleLike, type GalleryItem } from '@/lib/gallery/store';
 const DIFFICULTY_TABS = ['전체', '초급', '중급', '고급'];
 const PATTERN_TYPES = ['체크', '레이스', '케이블', '컬러워크', '노르딕', '모티프'];
 
+// 글자별 애니메이션 설정
+const CHAR_ANIM = [
+  { tx: '-120px', ty: '-40px', rot: '-25deg', delay: '0s' },
+  { tx: '-60px', ty: '-80px', rot: '15deg', delay: '0.05s' },
+  { tx: '-20px', ty: '60px', rot: '-10deg', delay: '0.1s' },
+  { tx: '10px', ty: '-30px', rot: '5deg', delay: '0.12s' },
+  { tx: '50px', ty: '-70px', rot: '-20deg', delay: '0.18s' },
+  { tx: '80px', ty: '50px', rot: '12deg', delay: '0.22s' },
+  { tx: '120px', ty: '-20px', rot: '-8deg', delay: '0.28s' },
+  { tx: '80px', ty: '60px', rot: '18deg', delay: '0.32s' },
+  { tx: '40px', ty: '-50px', rot: '-15deg', delay: '0.36s' },
+];
+
 export default function GalleryPage() {
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [selectedDifficulty, setSelectedDifficulty] = useState('전체');
   const [selectedType, setSelectedType] = useState('체크');
   const [search, setSearch] = useState('');
   const [modalItem, setModalItem] = useState<GalleryItem | null>(null);
+  const [heroVisible, setHeroVisible] = useState(true);
+  const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { setItems(loadGallery()); }, []);
+
+  // Hero 섹션 가시성 감지
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    if (heroRef.current) observer.observe(heroRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const handleLike = useCallback((id: string) => {
     const updated = toggleLike(id);
@@ -44,14 +69,17 @@ export default function GalleryPage() {
       <Header />
 
       {/* ── Hero ── */}
-      <div style={{
-        background: 'linear-gradient(150deg, #FFF4EF 0%, #FDE8F2 40%, #EEE8FF 75%, #E8F2FF 100%)',
-        borderBottom: '1px solid var(--color-warm-border)',
-        padding: '56px 24px 48px',
-        textAlign: 'center',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
+      <div
+        ref={heroRef}
+        style={{
+          background: 'linear-gradient(150deg, #FFF4EF 0%, #FDE8F2 40%, #EEE8FF 75%, #E8F2FF 100%)',
+          borderBottom: '1px solid var(--color-warm-border)',
+          padding: '56px 24px 48px',
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
         {/* 장식 이모지 */}
         {[
           { t: '8%', l: '6%', s: 44, op: 0.13, r: -12 },
@@ -96,7 +124,20 @@ export default function GalleryPage() {
           lineHeight: 1.2,
           marginBottom: 12,
         }}>
-          Cro-share
+          {'Cro-share'.split('').map((char, i) => (
+            <span
+              key={i}
+              className="hero-char"
+              style={{
+                '--tx': CHAR_ANIM[i].tx,
+                '--ty': CHAR_ANIM[i].ty,
+                '--rot': CHAR_ANIM[i].rot,
+                animationDelay: CHAR_ANIM[i].delay,
+              } as React.CSSProperties}
+            >
+              {char}
+            </span>
+          ))}
         </h1>
 
         <p style={{
@@ -123,7 +164,14 @@ export default function GalleryPage() {
       </div>
 
       {/* ── 카테고리 섹션 ── */}
-      <div className="sticky top-16 z-40 bg-cream/95 backdrop-blur-sm border-b border-warm-border" style={{ borderColor: 'var(--color-warm-border)' }}>
+      <div
+        className={`sticky top-16 z-40 bg-cream/95 backdrop-blur-sm border-b border-warm-border transition-all duration-300 ${
+          heroVisible
+            ? 'opacity-0 -translate-y-2 pointer-events-none'
+            : 'opacity-100 translate-y-0'
+        }`}
+        style={{ borderColor: 'var(--color-warm-border)' }}
+      >
         <div style={{ maxWidth: 1400, margin: '0 auto', padding: '20px 24px' }}>
           {/* 검색창 */}
           <div className="mb-6">

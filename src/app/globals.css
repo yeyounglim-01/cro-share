@@ -158,3 +158,26 @@ input[type='range']::-webkit-slider-thumb:hover { transform: scale(1.2); }
   font-weight: 700;
   border-bottom-color: var(--color-ink);
 }
+
+/* 글자 흩날리기 애니메이션 */
+@keyframes charFlyIn {
+  0% {
+    opacity: 0;
+    transform: translate(var(--tx, 0), var(--ty, 0)) rotate(var(--rot, 0)) scale(0.4);
+    filter: blur(6px);
+  }
+  70% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.hero-char {
+  display: inline-block;
+  animation: charFlyIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
