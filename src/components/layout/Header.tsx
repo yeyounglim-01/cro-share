@@ -10,19 +10,13 @@ export default function Header() {
   return (
     <header className="navbar sticky top-0 z-50 bg-cream/95 backdrop-blur-sm border-b border-warm-border shadow-sm" style={{ borderColor: 'var(--color-warm-border)' }}>
       <div className="navbar-start">
-        {/* 로고 */}
-        <Link href="/" className="flex items-center gap-2.5 no-underline">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-base shadow-md"
-            style={{
-              background: 'linear-gradient(135deg, #C97B6B 0%, #D4A896 100%)',
-            }}
-          >
-            🧶
-          </div>
-          <span className="text-lg font-bold font-serif" style={{ color: 'var(--color-ink)' }}>
-            Cro-share
-          </span>
+        {/* 로고 이미지 */}
+        <Link href="/" className="flex items-center no-underline">
+          <img
+            src="/logo.png"
+            alt="Cro-share"
+            className="h-10 object-contain"
+          />
         </Link>
       </div>
 

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
-import CroShareSVG from '@/components/hero/CroShareSVG';
 import PatternCard from '@/components/gallery/PatternCard';
 import PatternModal from '@/components/gallery/PatternModal';
 import CrochetSection from '@/components/crochet/CrochetSection';
@@ -82,25 +81,11 @@ export default function GalleryPage() {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            opacity: 0.85,
+            opacity: 0.9,
           }}
         >
           <source src="/videos/cro-share-yarn.mp4" type="video/mp4" />
         </video>
-
-        {/* SVG 텍스트 (영상 위) */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1,
-          }}
-        >
-          <CroShareSVG />
-        </div>
       </section>
 
       {/* ── 갤러리 섹션 (Hero 위로 올라옴) ── */}
