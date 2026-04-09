@@ -62,17 +62,45 @@ export default function GalleryPage() {
           position: 'fixed',
           inset: 0,
           zIndex: 10,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'linear-gradient(160deg, #FFFCFA 0%, #FFF5F0 40%, #F8F0FF 100%)',
+          overflow: 'hidden',
+          background: '#FFFCFA',
           opacity: heroOpacity,
           transform: `translateY(-${heroTranslateY}px)`,
           pointerEvents: heroOpacity < 0.05 ? 'none' : 'auto',
           transition: 'opacity 0.1s linear, transform 0.1s linear',
         }}
       >
-        <CroShareSVG />
+        {/* 뜨개실 영상 배경 */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.85,
+          }}
+        >
+          <source src="/videos/cro-share-yarn.mp4" type="video/mp4" />
+        </video>
+
+        {/* SVG 텍스트 (영상 위) */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1,
+          }}
+        >
+          <CroShareSVG />
+        </div>
       </section>
 
       {/* ── 갤러리 섹션 (Hero 위로 올라옴) ── */}
