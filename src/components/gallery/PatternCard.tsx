@@ -15,89 +15,60 @@ export default function PatternCard({ item, onLike, onOpen }: Props) {
 
   return (
     <div
-      className="pin-card"
-      style={{
-        borderRadius: 20,
-        overflow: 'hidden',
-        background: '#FFF',
-        boxShadow: '0 2px 10px rgba(92,51,23,0.08)',
-        cursor: 'pointer',
-      }}
+      className="card card-compact bg-base-100 shadow hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => onOpen(item)}
     >
       {/* ── 썸네일 영역 ── */}
-      <div style={{ position: 'relative', background: 'var(--color-warm-gray)' }}>
+      <div className="relative aspect-square overflow-hidden" style={{ background: 'var(--color-warm-gray)' }}>
         <KnitSymbolChart chartData={item.chart} compact />
 
         {/* 어두운 오버레이 */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'rgba(60,30,10,0.18)',
-          opacity: hovered ? 1 : 0,
-          transition: 'opacity 0.2s',
-          pointerEvents: 'none',
-        }} />
+        <div
+          className={`absolute inset-0 bg-black/20 transition-opacity duration-200 pointer-events-none ${
+            hovered ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
 
-        {/* 좋아요 버튼 (hover 또는 이미 liked) */}
+        {/* 좋아요 버튼 */}
         <button
           onClick={e => { e.stopPropagation(); onLike(item.id); }}
-          style={{
-            position: 'absolute', top: 10, right: 10,
-            background: 'white',
-            border: 'none',
-            borderRadius: 20,
-            padding: '5px 10px',
-            display: 'flex', alignItems: 'center', gap: 4,
-            cursor: 'pointer',
-            opacity: hovered || item.likedByMe ? 1 : 0,
-            transition: 'opacity 0.15s',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-            fontSize: 13,
-          }}>
+          className={`btn btn-ghost btn-sm gap-1 absolute top-2 right-2 transition-opacity duration-150 ${
+            hovered || item.likedByMe ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
           <span>{item.likedByMe ? '❤️' : '🤍'}</span>
-          <span style={{
-            fontWeight: 700, fontSize: 12,
-            color: item.likedByMe ? 'var(--color-rose)' : '#999',
-            fontFamily: 'var(--font-body)',
-          }}>
+          <span className="text-xs font-bold" style={{ color: item.likedByMe ? 'var(--color-rose)' : '#999' }}>
             {item.likes}
           </span>
         </button>
 
         {/* 모드 배지 */}
-        <span style={{
-          position: 'absolute', bottom: 8, left: 8,
-          background: item.chart.mode === 'image'
-            ? 'rgba(201,123,107,0.9)' : 'rgba(150,110,190,0.9)',
-          color: 'white',
-          padding: '2px 8px',
-          borderRadius: 10,
-          fontSize: 11,
-          fontWeight: 700,
-          fontFamily: 'var(--font-body)',
-        }}>
+        <span
+          className="badge badge-sm absolute bottom-2 left-2"
+          style={{
+            background: item.chart.mode === 'image' ? 'rgba(201,123,107,0.9)' : 'rgba(150,110,190,0.9)',
+            color: 'white',
+            fontSize: '11px',
+            fontWeight: '700',
+            fontFamily: 'var(--font-body)',
+            borderColor: 'transparent',
+          }}
+        >
           {item.chart.mode === 'image' ? '컬러워크' : '도트'}
         </span>
       </div>
 
       {/* ── 텍스트 영역 ── */}
-      <div style={{ padding: '10px 14px 13px' }}>
-        <p style={{
-          fontWeight: 700, fontSize: 14,
-          color: 'var(--color-ink)',
-          fontFamily: 'var(--font-serif)',
-          marginBottom: 3,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>
+      <div className="card-body p-3">
+        <p
+          className="font-bold text-sm font-serif truncate"
+          style={{ color: 'var(--color-ink)', marginBottom: '3px' }}
+        >
           {item.title}
         </p>
-        <p style={{
-          fontSize: 12,
-          color: 'var(--color-ink-light)',
-          fontFamily: 'var(--font-body)',
-        }}>
+        <p className="text-xs" style={{ color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)' }}>
           @{item.author}
         </p>
       </div>

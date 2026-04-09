@@ -51,9 +51,10 @@ export default function PatternModal({ item, onClose }: Props) {
               @{item.author} · {item.createdAt}
             </p>
           </div>
-          <button onClick={onClose}
-            className="w-9 h-9 rounded-2xl flex items-center justify-center text-lg transition-all hover:rotate-90"
-            style={{ background: 'var(--color-warm-gray)', border: 'none', cursor: 'pointer' }}>
+          <button
+            onClick={onClose}
+            className="btn btn-circle btn-ghost btn-sm"
+          >
             ✕
           </button>
         </div>
@@ -117,16 +118,11 @@ export default function PatternModal({ item, onClose }: Props) {
             </div>
           )}
 
-          <button onClick={handleEdit}
-            className="block w-full text-center py-3 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5"
-            style={{
-              background: 'var(--color-rose)',
-              color: 'white',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: 'var(--font-body)',
-              boxShadow: '0 4px 16px rgba(201,123,107,0.35)',
-            }}>
+          <button
+            onClick={handleEdit}
+            className="btn btn-primary w-full text-sm font-bold"
+            style={{ fontFamily: 'var(--font-body)' }}
+          >
             이 패턴으로 편집하기 →
           </button>
         </div>

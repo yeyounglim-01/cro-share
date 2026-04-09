@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "daisyui";
 
 @theme {
   /* Warm watercolor palette */
@@ -26,6 +27,10 @@
 
 @layer base {
   * { box-sizing: border-box; }
+
+  :root {
+    --p: oklch(from #C97B6B l c h);
+  }
 
   html {
     font-family: var(--font-body);

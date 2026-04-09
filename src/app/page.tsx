@@ -109,19 +109,8 @@ export default function GalleryPage() {
           기호로 직접 뜨개 패턴을 그려보세요
         </p>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <Link href="/editor" style={{
-            background: 'var(--color-rose)',
-            color: 'white',
-            padding: '13px 30px',
-            borderRadius: 100,
-            fontWeight: 700, fontSize: 14,
-            fontFamily: 'var(--font-body)',
-            textDecoration: 'none',
-            boxShadow: '0 6px 20px rgba(201,123,107,0.38)',
-            transition: 'transform 0.15s',
-            display: 'inline-block',
-          }}>
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <Link href="/editor" className="btn btn-primary">
             ✦ 패턴 만들기
           </Link>
           <span style={{ fontSize: 13, color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)' }}>
@@ -131,60 +120,43 @@ export default function GalleryPage() {
       </div>
 
       {/* ── 검색 + 태그 필터 ── */}
-      <div style={{
-        position: 'sticky', top: 64, zIndex: 40,
-        background: 'rgba(250,246,241,0.95)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid var(--color-warm-border)',
-        padding: '12px 24px',
-      }}>
+      <div className="sticky top-16 z-40 bg-cream/95 backdrop-blur-sm border-b border-warm-border py-3 px-6" style={{ borderColor: 'var(--color-warm-border)' }}>
         <div style={{ maxWidth: 1400, margin: '0 auto' }}>
           {/* 검색창 */}
-          <div style={{ position: 'relative', maxWidth: 340, marginBottom: 10 }}>
-            <span style={{
-              position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
-              fontSize: 15, pointerEvents: 'none',
-            }}>🔍</span>
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="패턴 이름, 작가, 태그 검색..."
-              style={{
-                width: '100%',
-                paddingLeft: 36, paddingRight: 14, paddingTop: 9, paddingBottom: 9,
-                borderRadius: 100,
-                border: '1.5px solid var(--color-warm-border)',
-                background: 'white',
-                fontSize: 13,
-                fontFamily: 'var(--font-body)',
-                color: 'var(--color-ink)',
-                outline: 'none',
-                boxShadow: '0 2px 8px rgba(92,51,23,0.05)',
-              }}
-            />
+          <div className="mb-3">
+            <label className="input input-bordered flex items-center gap-2 text-sm" style={{ background: 'white' }}>
+              <span className="text-lg">🔍</span>
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="패턴 이름, 작가, 태그 검색..."
+                className="grow outline-none"
+                style={{ fontFamily: 'var(--font-body)' }}
+              />
+            </label>
           </div>
 
-          {/* 태그 칩 */}
-          <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* 태그 필터 버튼 */}
+          <div className="flex flex-wrap gap-2 items-center">
             {ALL_TAGS.map(tag => (
-              <button key={tag}
+              <button
+                key={tag}
                 onClick={() => setSelectedTag(tag)}
+                className={`btn btn-sm transition-all ${
+                  selectedTag === tag ? 'btn-primary' : 'btn-ghost'
+                }`}
                 style={{
-                  padding: '5px 14px',
-                  borderRadius: 100,
-                  fontSize: 12, fontWeight: 700,
                   fontFamily: 'var(--font-body)',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  background: selectedTag === tag ? 'var(--color-rose)' : 'white',
-                  color: selectedTag === tag ? 'white' : 'var(--color-ink-mid)',
-                  border: `1.5px solid ${selectedTag === tag ? 'var(--color-rose)' : 'var(--color-warm-border)'}`,
-                  boxShadow: selectedTag === tag ? '0 3px 10px rgba(201,123,107,0.28)' : 'none',
-                }}>
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  textTransform: 'none',
+                }}
+              >
                 {tag}
               </button>
             ))}
-            <span style={{ fontSize: 12, color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)', marginLeft: 4 }}>
+            <span className="text-xs ml-2" style={{ color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)' }}>
               {filtered.length}개
             </span>
           </div>
@@ -248,17 +220,7 @@ export default function GalleryPage() {
           }}>
             직접 만든 도안을 갤러리에 올리고 다른 뜨개인들과 함께해요
           </p>
-          <Link href="/editor" style={{
-            display: 'inline-block',
-            background: 'var(--color-rose)',
-            color: 'white',
-            padding: '13px 32px',
-            borderRadius: 100,
-            fontWeight: 700, fontSize: 14,
-            fontFamily: 'var(--font-body)',
-            textDecoration: 'none',
-            boxShadow: '0 6px 20px rgba(201,123,107,0.35)',
-          }}>
+          <Link href="/editor" className="btn btn-primary">
             패턴 만들기 →
           </Link>
         </div>
