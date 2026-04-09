@@ -8,11 +8,13 @@ import PatternModal from '@/components/gallery/PatternModal';
 import CrochetSection from '@/components/crochet/CrochetSection';
 import { loadGallery, toggleLike, type GalleryItem } from '@/lib/gallery/store';
 
-const ALL_TAGS = ['전체', '초급', '중급', '고급', '체크', '레이스', '케이블', '컬러워크', '노르딕', '모티프'];
+const DIFFICULTY_TABS = ['전체', '초급', '중급', '고급'];
+const PATTERN_TYPES = ['체크', '레이스', '케이블', '컬러워크', '노르딕', '모티프'];
 
 export default function GalleryPage() {
   const [items, setItems] = useState<GalleryItem[]>([]);
-  const [selectedTag, setSelectedTag] = useState('전체');
+  const [selectedDifficulty, setSelectedDifficulty] = useState('전체');
+  const [selectedType, setSelectedType] = useState('체크');
   const [search, setSearch] = useState('');
   const [modalItem, setModalItem] = useState<GalleryItem | null>(null);
 
@@ -31,9 +33,10 @@ export default function GalleryPage() {
   }, []);
 
   const filtered = items.filter(item => {
-    const matchTag = selectedTag === '전체' || item.tags.includes(selectedTag);
+    const matchDiff = selectedDifficulty === '전체' || item.tags.includes(selectedDifficulty);
+    const matchType = selectedType === '전체' || item.tags.includes(selectedType);
     const matchSearch = !search || item.title.includes(search) || item.author.includes(search) || item.tags.some(t => t.includes(search));
-    return matchTag && matchSearch;
+    return matchDiff && matchType && matchSearch;
   });
 
   return (
@@ -119,11 +122,11 @@ export default function GalleryPage() {
         </div>
       </div>
 
-      {/* ── 검색 + 태그 필터 ── */}
-      <div className="sticky top-16 z-40 bg-cream/95 backdrop-blur-sm border-b border-warm-border py-3 px-6" style={{ borderColor: 'var(--color-warm-border)' }}>
-        <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+      {/* ── 카테고리 섹션 ── */}
+      <div className="sticky top-16 z-40 bg-cream/95 backdrop-blur-sm border-b border-warm-border" style={{ borderColor: 'var(--color-warm-border)' }}>
+        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '20px 24px' }}>
           {/* 검색창 */}
-          <div className="mb-3">
+          <div className="mb-6">
             <label className="input input-bordered flex items-center gap-2 text-sm" style={{ background: 'white' }}>
               <span className="text-lg">🔍</span>
               <input
@@ -137,26 +140,37 @@ export default function GalleryPage() {
             </label>
           </div>
 
-          {/* 태그 필터 버튼 */}
-          <div className="flex flex-wrap gap-2 items-center">
-            {ALL_TAGS.map(tag => (
+          {/* 패턴 유형 섹션 */}
+          <div className="mb-6">
+            <p className="text-xs font-semibold mb-3" style={{ color: 'var(--color-ink-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              패턴 유형
+            </p>
+            <div className="flex flex-wrap gap-x-6 gap-y-2">
+              {PATTERN_TYPES.map(type => (
+                <button
+                  key={type}
+                  onClick={() => setSelectedType(type)}
+                  className={`category-link ${selectedType === type ? 'active' : ''}`}
+                  style={{ fontFamily: 'var(--font-body)' }}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 난이도 탭 섹션 */}
+          <div className="flex items-center gap-2 border-b border-warm-border pb-3" style={{ borderColor: 'var(--color-warm-border)' }}>
+            {DIFFICULTY_TABS.map(level => (
               <button
-                key={tag}
-                onClick={() => setSelectedTag(tag)}
-                className={`btn btn-sm transition-all ${
-                  selectedTag === tag ? 'btn-primary' : 'btn-ghost'
-                }`}
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '12px',
-                  fontWeight: '700',
-                  textTransform: 'none',
-                }}
+                key={level}
+                onClick={() => setSelectedDifficulty(level)}
+                className={`difficulty-tab ${selectedDifficulty === level ? 'active' : ''}`}
               >
-                {tag}
+                {level}
               </button>
             ))}
-            <span className="text-xs ml-2" style={{ color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)' }}>
+            <span className="text-xs ml-auto" style={{ color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)' }}>
               {filtered.length}개
             </span>
           </div>

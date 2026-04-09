@@ -29,7 +29,8 @@
   * { box-sizing: border-box; }
 
   :root {
-    --p: oklch(from #C97B6B l c h);
+    --color-primary: oklch(0.63 0.12 26.6);
+    --color-primary-content: #ffffff;
   }
 
   html {
@@ -98,4 +99,62 @@ input[type='range']::-webkit-slider-thumb:hover { transform: scale(1.2); }
 .pin-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 14px 40px rgba(92,51,23,0.16) !important;
+}
+
+/* 큰 카테고리 링크 hover underline 효과 */
+.category-link {
+  position: relative;
+  transition: color 0.2s;
+  color: var(--color-ink-light);
+  font-weight: 600;
+  font-size: 1.25rem;
+  text-decoration: none;
+  display: inline-block;
+}
+.category-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-rose);
+  transition: width 0.25s ease;
+}
+.category-link:hover {
+  color: var(--color-ink);
+}
+.category-link:hover::after {
+  width: 100%;
+}
+.category-link.active {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+.category-link.active::after {
+  width: 100%;
+}
+
+/* 난이도 탭 */
+.difficulty-tab {
+  color: var(--color-ink-light);
+  border-bottom: 2px solid transparent;
+  padding: 0 12px 6px 12px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 0.15s, border-color 0.15s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+.difficulty-tab:hover {
+  color: var(--color-ink);
+}
+.difficulty-tab.active {
+  color: var(--color-ink);
+  font-weight: 700;
+  border-bottom-color: var(--color-ink);
 }
