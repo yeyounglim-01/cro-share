@@ -262,6 +262,60 @@ export default function EditorPage() {
             <StitchPalette horizontal />
           </div>
 
+          {/* 색상 수 실시간 조정 (이미지 모드) */}
+          {chart.mode === 'image' && chart.yarnPalette.length > 0 && loadedImage && (
+            <div className="flex items-center gap-3 px-4 py-2"
+              style={{ borderBottom: '1.5px solid var(--color-warm-border)', background: 'var(--color-paper)' }}>
+              <span className="text-xs font-bold flex-shrink-0"
+                style={{ color: 'var(--color-ink-mid)', fontFamily: 'var(--font-body)' }}>
+                {language === 'ko' ? '색상 수' : 'Colors'}
+              </span>
+              <div className="flex items-center gap-2 flex-shrink-0" style={{ minWidth: 200 }}>
+                <input type="range" min={2} max={10} value={colorCount}
+                  onMouseUp={(e) => {
+                    const v = Number(e.currentTarget.value);
+                    if (v === colorCount) return;
+                    (async () => {
+                      setProcessing(true);
+                      try {
+                        const data = await imageToColorChart(loadedImage, chart.width, chart.height, v);
+                        setChart({ ...data, gaugeStitches, gaugeRows });
+                      } catch (err) {
+                        console.error(err);
+                      } finally {
+                        setProcessing(false);
+                      }
+                    })();
+                  }}
+                  onTouchEnd={(e) => {
+                    const v = Number(e.currentTarget.value);
+                    if (v === colorCount) return;
+                    (async () => {
+                      setProcessing(true);
+                      try {
+                        const data = await imageToColorChart(loadedImage, chart.width, chart.height, v);
+                        setChart({ ...data, gaugeStitches, gaugeRows });
+                      } catch (err) {
+                        console.error(err);
+                      } finally {
+                        setProcessing(false);
+                      }
+                    })();
+                  }}
+                  style={{ flex: 1 }} />
+                <span className="text-xs font-bold px-2 py-0.5 rounded-lg flex-shrink-0"
+                  style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)', fontFamily: 'var(--font-body)' }}>
+                  {colorCount}가지
+                </span>
+                {isProcessing && (
+                  <span className="text-xs flex-shrink-0" style={{ color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)' }}>
+                    ⟳
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* 실 색상 수평 스트립 */}
           {chart.yarnPalette.length > 0 && (
             <div className="flex items-center gap-4 px-4 py-2 overflow-x-auto"
