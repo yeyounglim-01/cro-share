@@ -38,35 +38,19 @@ export default function EditorPage() {
   const [loadedImage, setLoadedImage] = useState<HTMLImageElement | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(null); // 에디터 내 이미지 프리뷰용
   const [isTrackingProgress, setIsTrackingProgress] = useState(false);
-  const [currentRow, setCurrentRow] = useState(0);
+  const [currentRowNum, setCurrentRowNum] = useState(1); // 현재 단 번호 (1부터 시작)
   const { chart, setChart, isProcessing, setProcessing, gridWidth, gridHeight, colorCount,
     setGridWidth, setGridHeight, setColorCount, gaugeStitches, gaugeRows, setGaugeStitches, setGaugeRows,
     language, resetChart, updateYarnLabel, updateYarnColor, selectedYarnColor, setSelectedYarnColor,
     drawMode, setDrawMode, symmetryMode, setSymmetryMode } = useKnitChartStore();
   const { undo, redo } = useDrawTool();
+  const currentRow = currentRowNum && chart ? chart.height - currentRowNum : null; // 실제 row index (chart.cells 배열 기준)
 
   // 갤러리에서 "편집하기"로 진입한 경우 차트가 이미 스토어에 있으면 바로 에디터 모드로
   useEffect(() => {
     if (chart) setAppMode('editor');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [shared, setShared] = useState(false);
-
-  const handleShare = useCallback(() => {
-    if (!chart) return;
-    saveToGallery({
-      id: chart.id,
-      chart,
-      title: chart.name,
-      author: '나',
-      tags: [chart.mode === 'image' ? '컬러워크' : '도트', '내 패턴'],
-      likes: 0,
-      likedByMe: false,
-      createdAt: new Date().toISOString().slice(0, 10),
-    });
-    setShared(true);
-    setTimeout(() => setShared(false), 3000);
-  }, [chart]);
 
   // 이미지 선택 즉시 자동 생성 — 비율 보존 + 게이지 반영 격자 크기 자동 계산
   const handleImageReady = useCallback(async (img: HTMLImageElement) => {
@@ -251,11 +235,6 @@ export default function EditorPage() {
               )}
               <button onClick={undo} title="실행 취소 (Ctrl+Z)" style={toolbarBtnStyle}>↩</button>
               <button onClick={redo} title="다시 실행 (Ctrl+Y)" style={toolbarBtnStyle}>↪</button>
-              <button onClick={handleShare}
-                className="px-3 py-1.5 rounded-full text-sm font-bold transition-all hover:-translate-y-0.5"
-                style={{ background: shared ? 'var(--color-sage)' : 'var(--color-rose-light)', color: shared ? 'white' : 'var(--color-rose-dark)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
-                {shared ? '✓ 공유됨!' : '🔗 공유'}
-              </button>
             </div>
           </div>
 
@@ -274,9 +253,9 @@ export default function EditorPage() {
               </span>
               <div className="flex items-center gap-2 flex-shrink-0" style={{ minWidth: 200 }}>
                 <input type="range" min={2} max={10} value={colorCount}
+                  onChange={(e) => setColorCount(Number(e.currentTarget.value))}
                   onMouseUp={(e) => {
                     const v = Number(e.currentTarget.value);
-                    if (v === colorCount) return;
                     (async () => {
                       setProcessing(true);
                       try {
@@ -291,7 +270,6 @@ export default function EditorPage() {
                   }}
                   onTouchEnd={(e) => {
                     const v = Number(e.currentTarget.value);
-                    if (v === colorCount) return;
                     (async () => {
                       setProcessing(true);
                       try {
@@ -385,7 +363,7 @@ export default function EditorPage() {
             <div className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div
                 style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', borderRadius: '1rem', padding: '1.25rem', boxShadow: '0 3px 16px rgba(92,51,23,0.06)' }}>
-                <KnitSymbolChart chartData={chart} editable={true} gaugeStitches={gaugeStitches} gaugeRows={gaugeRows} currentRow={isTrackingProgress ? currentRow : null} />
+                <KnitSymbolChart chartData={chart} editable={true} gaugeStitches={gaugeStitches} gaugeRows={gaugeRows} currentRow={isTrackingProgress ? chart.height - currentRowNum : null} />
               </div>
 
               {/* 진행도 추적 컨트롤 */}
@@ -399,15 +377,15 @@ export default function EditorPage() {
 
                 {isTrackingProgress && (
                   <>
-                    <button onClick={() => setCurrentRow(Math.max(0, currentRow - 1))}
+                    <button onClick={() => setCurrentRowNum(Math.max(1, currentRowNum - 1))}
                       className="text-sm font-bold px-2.5 py-1.5 rounded-lg"
                       style={{ background: 'var(--color-warm-gray)', color: 'var(--color-ink-mid)', border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
                       ◀
                     </button>
                     <span className="text-sm font-bold" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-body)', minWidth: '60px', textAlign: 'center' }}>
-                      {chart.height - currentRow}단
+                      {currentRowNum}단
                     </span>
-                    <button onClick={() => setCurrentRow(Math.min(chart.height - 1, currentRow + 1))}
+                    <button onClick={() => setCurrentRowNum(Math.min(chart.height, currentRowNum + 1))}
                       className="text-sm font-bold px-2.5 py-1.5 rounded-lg"
                       style={{ background: 'var(--color-warm-gray)', color: 'var(--color-ink-mid)', border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
                       ▶

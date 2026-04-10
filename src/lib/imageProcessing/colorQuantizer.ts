@@ -12,7 +12,7 @@ function averageColor(pixels: RGB[]): RGB {
 }
 
 // 채도 부스트 — RGB 색상을 더 선명하게 만드는 함수
-function boostSaturation(rgb: RGB, factor = 1.35): RGB {
+function boostSaturation(rgb: RGB, factor = 1.1): RGB {
   const r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255;
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
   const l = (max + min) / 2;

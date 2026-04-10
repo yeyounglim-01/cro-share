@@ -4,11 +4,13 @@ import { useState } from 'react';
 import { jsPDF } from 'jspdf';
 import { useKnitChartStore } from '@/hooks/useKnitChartState';
 import { formatFullPattern } from '@/lib/knitting/patternGenerator';
+import { saveToGallery } from '@/lib/gallery/store';
 
 export default function ExportPanel() {
   const { chart, language } = useKnitChartStore();
   const [filename, setFilename] = useState('my-knit-pattern');
   const [isExporting, setIsExporting] = useState(false);
+  const [shared, setShared] = useState(false);
 
   if (!chart) return null;
 
@@ -36,6 +38,22 @@ export default function ExportPanel() {
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const handleShare = () => {
+    if (!chart) return;
+    saveToGallery({
+      id: chart.id,
+      chart,
+      title: chart.name,
+      author: '나',
+      tags: [chart.mode === 'image' ? '컬러워크' : '도트', '내 패턴'],
+      likes: 0,
+      likedByMe: false,
+      createdAt: new Date().toISOString().slice(0, 10),
+    });
+    setShared(true);
+    setTimeout(() => setShared(false), 2000);
   };
 
   const handlePdf = async () => {
@@ -121,19 +139,24 @@ export default function ExportPanel() {
           style={{ background: 'white', border: '1.5px solid var(--color-warm-border)', color: 'var(--color-ink)', fontFamily: 'var(--font-body)' }} />
       </div>
 
-      <div className="flex gap-2">
+      <div className="grid grid-cols-2 gap-2">
+        <button onClick={handleShare}
+          className="py-2.5 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5"
+          style={{ background: shared ? 'var(--color-sage)' : 'var(--color-rose-light)', color: shared ? 'white' : 'var(--color-rose-dark)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+          {shared ? '✓ 공유됨!' : '🔗 공유'}
+        </button>
         <button onClick={handlePdf} disabled={isExporting}
-          className="flex-1 py-2.5 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5 disabled:opacity-50"
+          className="py-2.5 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5 disabled:opacity-50"
           style={{ background: 'var(--color-rose)', color: 'white', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)', boxShadow: '0 3px 12px rgba(201,123,107,0.35)' }}>
           📋 PDF
         </button>
         <button onClick={handlePng} disabled={isExporting}
-          className="flex-1 py-2.5 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5 disabled:opacity-50"
+          className="py-2.5 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5 disabled:opacity-50"
           style={{ background: 'white', color: 'var(--color-ink-mid)', border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
           📥 PNG
         </button>
         <button onClick={handleTxt}
-          className="flex-1 py-2.5 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5"
+          className="py-2.5 rounded-2xl font-bold text-sm transition-all hover:-translate-y-0.5"
           style={{ background: 'white', color: 'var(--color-ink-mid)', border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
           📄 {language === 'ko' ? '텍스트' : 'TXT'}
         </button>
