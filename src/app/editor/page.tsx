@@ -335,12 +335,16 @@ export default function EditorPage() {
             {/* 사이드바 토글 탭 */}
             <button onClick={() => setSidebarOpen(!sidebarOpen)}
               title={sidebarOpen ? '텍스트 패턴 닫기' : '텍스트 패턴 열기'}
-              style={{ width: 20, flexShrink: 0, alignSelf: 'stretch', background: 'var(--color-warm-gray)',
+              style={{ width: 28, flexShrink: 0, alignSelf: 'stretch', background: sidebarOpen ? 'var(--color-rose-light)' : 'var(--color-warm-gray)',
                 borderRight: '1.5px solid var(--color-warm-border)', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '0.6rem', color: 'var(--color-ink-light)', border: 'none', transition: 'background 0.2s' }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-ink-light)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-warm-gray)'}>
+                fontSize: '0.9rem', color: sidebarOpen ? 'var(--color-rose-dark)' : 'var(--color-ink-mid)', border: 'none', transition: 'all 0.2s', fontWeight: 'bold' }}
+              onMouseEnter={(e) => {
+                if (!sidebarOpen) e.currentTarget.style.background = 'var(--color-warm-border)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = sidebarOpen ? 'var(--color-rose-light)' : 'var(--color-warm-gray)';
+              }}>
               {sidebarOpen ? '◀' : '▶'}
             </button>
 
@@ -428,30 +432,28 @@ export default function EditorPage() {
                   style={{ ...toolbarBtnStyle, width: 28, height: 28, borderRadius: '0.5rem' }}>↩</button>
                 <button onClick={redo} title="다시 실행 (Ctrl+Y)"
                   style={{ ...toolbarBtnStyle, width: 28, height: 28, borderRadius: '0.5rem' }}>↪</button>
-              </div>
 
-              {/* 진행도 추적 컨트롤 */}
-              <div
-                style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', borderRadius: '1rem', padding: '1rem', boxShadow: '0 3px 16px rgba(92,51,23,0.06)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                {/* 진행도 추적 시작 */}
                 <button onClick={() => setIsTrackingProgress(!isTrackingProgress)}
-                  className="text-xs font-bold px-3 py-2 rounded-lg transition-all"
-                  style={{ background: isTrackingProgress ? 'var(--color-rose)' : 'var(--color-warm-gray)', color: isTrackingProgress ? 'white' : 'var(--color-ink-mid)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
-                  {isTrackingProgress ? '🎯 진행도 추적 중' : '시작하기'}
+                  className="text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all"
+                  style={{ background: isTrackingProgress ? 'var(--color-rose)' : 'var(--color-warm-gray)', color: isTrackingProgress ? 'white' : 'var(--color-ink-mid)', border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+                  {isTrackingProgress ? '🎯' : '🎯'}
                 </button>
 
+                {/* 진행도 표시 (추적 중일 때만) */}
                 {isTrackingProgress && (
                   <>
                     <button onClick={() => setCurrentRowNum(Math.max(1, currentRowNum - 1))}
-                      className="text-sm font-bold px-2.5 py-1.5 rounded-lg"
-                      style={{ background: 'var(--color-warm-gray)', color: 'var(--color-ink-mid)', border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+                      className="text-xs font-bold px-1.5 py-1 rounded-lg"
+                      style={{ background: 'var(--color-warm-gray)', color: 'var(--color-ink-mid)', border: '1px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.7rem' }}>
                       ◀
                     </button>
-                    <span className="text-sm font-bold" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-body)', minWidth: '60px', textAlign: 'center' }}>
+                    <span className="text-xs font-bold" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-body)', minWidth: '40px', textAlign: 'center' }}>
                       {currentRowNum}단
                     </span>
                     <button onClick={() => setCurrentRowNum(Math.min(chart.height, currentRowNum + 1))}
-                      className="text-sm font-bold px-2.5 py-1.5 rounded-lg"
-                      style={{ background: 'var(--color-warm-gray)', color: 'var(--color-ink-mid)', border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+                      className="text-xs font-bold px-1.5 py-1 rounded-lg"
+                      style={{ background: 'var(--color-warm-gray)', color: 'var(--color-ink-mid)', border: '1px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.7rem' }}>
                       ▶
                     </button>
                   </>
