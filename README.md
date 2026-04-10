@@ -12,7 +12,7 @@
 
 ## 📸 스크린샷
 
-### 갤러리 홈 — Pinterest 스타일 마소느리
+### 갤러리 홈 — Pinterest 스타일 매소너리
 
 ![갤러리 홈](docs/screenshots/01_gallery.png)
 
@@ -74,7 +74,7 @@
 
 ### 🏛 커뮤니티 갤러리
 
-- Pinterest 스타일 **CSS 마소느리** 그리드 (2~5열 반응형)
+- Pinterest 스타일 **CSS 매소너리** 그리드 (2~5열 반응형)
 - 태그 필터 + 검색 · 좋아요 · Hover 하트 버튼
 - 내 패턴 공유 → 갤러리 자동 등록 (localStorage)
 - 갤러리에서 "편집하기" → 에디터로 차트 불러오기
@@ -130,7 +130,7 @@ src/
 │   ├── chart/KnitSymbolChart.tsx # 도안 Canvas (줌·팬·편집)
 │   ├── crochet/CrochetSection.tsx# 코바늘 도안 섹션
 │   ├── draw/StitchPalette.tsx    # 기호 팔레트
-│   ├── gallery/PatternCard.tsx   # 마소느리 카드
+│   ├── gallery/PatternCard.tsx   # 매소너리 카드
 │   ├── layout/Header.tsx         # 헤더 + 언어 토글
 │   └── pattern/PatternText.tsx   # 텍스트 패턴 출력
 │
@@ -154,7 +154,7 @@ src/
 **갤러리 UI 현대화 (feature/gallery-redesign)**
 - ✨ DaisyUI v5 도입 · Tailwind CSS v4 적용
 - 🎬 Apple 스타일 풀스크린 Hero (영상 배경 + 스크롤 시 페이드아웃)
-- 🖼️ Pinterest 스타일 마소느리 그리드 갤러리
+- 🖼️ Pinterest 스타일 매소너리 그리드 갤러리
 - 🎯 카테고리 분리 (난이도: 전체/초급/중급/고급, 패턴: 체크/레이스/케이블/컬러워크/노르딕/모티프)
 - 🔍 실시간 검색 · 필터 · 좋아요
 - 🌐 언어 토글 (한국어 ↔ English) + 슬라이드 스위치 애니메이션
