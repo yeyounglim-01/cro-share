@@ -187,13 +187,13 @@ export default function EditorPage() {
             <div className="flex items-center gap-2">
               {/* 사이드바 토글 (hamburger) */}
               <button onClick={() => setSidebarOpen(!sidebarOpen)}
-                title="텍스트 패턴"
-                className="text-sm font-bold px-2 py-2 rounded-lg transition-all"
+                title={sidebarOpen ? '텍스트 패턴 닫기' : '텍스트 패턴 열기'}
+                className="text-sm font-bold px-2.5 py-2.5 rounded-lg transition-all hover:scale-110"
                 style={{ background: sidebarOpen ? 'var(--color-rose-light)' : 'var(--color-warm-gray)',
                   color: sidebarOpen ? 'var(--color-rose-dark)' : 'var(--color-ink-mid)',
                   border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)',
-                  letterSpacing: '-0.8px', fontSize: '1.1rem' }}>
-                |||
+                  fontSize: '1rem', transition: 'all 0.2s ease-in-out' }}>
+                {sidebarOpen ? '◀' : '≡'}
               </button>
 
               <button onClick={() => { resetChart(); setAppMode('select'); setLoadedImage(null); setImageSrc(null); }}
