@@ -184,7 +184,18 @@ export default function EditorPage() {
           {/* 툴바 */}
           <div className="flex items-center justify-between px-4 py-2 gap-3 flex-wrap"
             style={{ background: 'var(--color-paper)', borderBottom: '1.5px solid var(--color-warm-border)' }}>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {/* 사이드바 토글 (hamburger) */}
+              <button onClick={() => setSidebarOpen(!sidebarOpen)}
+                title="텍스트 패턴"
+                className="text-sm font-bold px-2 py-2 rounded-lg transition-all"
+                style={{ background: sidebarOpen ? 'var(--color-rose-light)' : 'var(--color-warm-gray)',
+                  color: sidebarOpen ? 'var(--color-rose-dark)' : 'var(--color-ink-mid)',
+                  border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)',
+                  letterSpacing: '-0.8px', fontSize: '1.1rem' }}>
+                |||
+              </button>
+
               <button onClick={() => { resetChart(); setAppMode('select'); setLoadedImage(null); setImageSrc(null); }}
                 className="text-sm font-semibold"
                 style={{ color: 'var(--color-ink-light)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
@@ -332,21 +343,6 @@ export default function EditorPage() {
               </div>
             </div>
 
-            {/* 사이드바 토글 탭 */}
-            <button onClick={() => setSidebarOpen(!sidebarOpen)}
-              title={sidebarOpen ? '텍스트 패턴 닫기' : '텍스트 패턴 열기'}
-              style={{ width: 28, flexShrink: 0, alignSelf: 'stretch', background: sidebarOpen ? 'var(--color-rose-light)' : 'var(--color-warm-gray)',
-                borderRight: '1.5px solid var(--color-warm-border)', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '0.9rem', color: sidebarOpen ? 'var(--color-rose-dark)' : 'var(--color-ink-mid)', border: 'none', transition: 'all 0.2s', fontWeight: 'bold' }}
-              onMouseEnter={(e) => {
-                if (!sidebarOpen) e.currentTarget.style.background = 'var(--color-warm-border)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = sidebarOpen ? 'var(--color-rose-light)' : 'var(--color-warm-gray)';
-              }}>
-              {sidebarOpen ? '◀' : '▶'}
-            </button>
 
             {/* 오른쪽 메인 영역 */}
             <div className="flex-1 p-4 flex flex-col gap-3" style={{ overflowY: 'auto' }}>
@@ -369,95 +365,101 @@ export default function EditorPage() {
                 )}
                 <div className="flex-1"
                   style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', borderRadius: '1rem', padding: '1.25rem', boxShadow: '0 3px 16px rgba(92,51,23,0.06)' }}>
-                  <KnitSymbolChart chartData={chart} editable={true} gaugeStitches={gaugeStitches} gaugeRows={gaugeRows} currentRow={isTrackingProgress ? chart.height - currentRowNum : null} />
+                  <KnitSymbolChart
+                    chartData={chart}
+                    editable={true}
+                    gaugeStitches={gaugeStitches}
+                    gaugeRows={gaugeRows}
+                    currentRow={isTrackingProgress ? chart.height - currentRowNum : null}
+                    toolbarSlot={
+                      <>
+                        {/* 그리기 모드 */}
+                        <div className="flex rounded-lg overflow-hidden"
+                          style={{ border: '1.5px solid var(--color-warm-border)' }}>
+                          {([
+                            { mode: 'pencil', icon: '✏️', tip: '그리기 (클릭·드래그)' },
+                            { mode: 'fill',   icon: '🪣', tip: '채우기 (인접 색상 채우기)' },
+                          ] as const).map(({ mode, icon, tip }) => (
+                            <button key={mode} onClick={() => setDrawMode(mode)} title={tip}
+                              style={{
+                                ...toolbarBtnStyle,
+                                width: 32, height: 28, borderRadius: 0, border: 'none',
+                                background: drawMode === mode ? 'var(--color-rose-light)' : 'var(--color-warm-gray)',
+                                color: drawMode === mode ? 'var(--color-rose-dark)' : 'var(--color-ink-mid)',
+                                fontSize: '0.9rem'
+                              }}>
+                              {icon}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* 대칭 모드 */}
+                        <div className="flex rounded-lg overflow-hidden"
+                          style={{ border: '1.5px solid var(--color-warm-border)' }}>
+                          {([
+                            { mode: 'none',       icon: '✕',  tip: '대칭 없음' },
+                            { mode: 'horizontal', icon: '↔',  tip: '좌우 대칭' },
+                            { mode: 'vertical',   icon: '↕',  tip: '상하 대칭' },
+                            { mode: 'both',       icon: '✦',  tip: '전체 대칭' },
+                          ] as const).map(({ mode, icon, tip }) => (
+                            <button key={mode} onClick={() => setSymmetryMode(mode)} title={tip}
+                              style={{
+                                ...toolbarBtnStyle,
+                                width: 28, height: 28, borderRadius: 0, border: 'none',
+                                fontSize: '0.75rem',
+                                background: symmetryMode === mode ? 'var(--color-lavender-light)' : 'var(--color-warm-gray)',
+                                color: symmetryMode === mode ? '#6B4CA0' : 'var(--color-ink-mid)',
+                              }}>
+                              {icon}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* 재설정 */}
+                        {chart.mode === 'image' && loadedImage && (
+                          <button onClick={() => setAppMode('image-upload')}
+                            title={language === 'ko' ? '격자 크기·색상 수 변경 후 재생성' : 'Regenerate'}
+                            className="text-xs font-bold px-2.5 py-1.5 rounded-lg"
+                            style={{ background: 'var(--color-warm-gray)', border: '1.5px solid var(--color-warm-border)', color: 'var(--color-ink-mid)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+                            ⚙
+                          </button>
+                        )}
+
+                        {/* Undo/Redo */}
+                        <button onClick={undo} title="실행 취소 (Ctrl+Z)"
+                          style={{ ...toolbarBtnStyle, width: 28, height: 28, borderRadius: '0.5rem' }}>↩</button>
+                        <button onClick={redo} title="다시 실행 (Ctrl+Y)"
+                          style={{ ...toolbarBtnStyle, width: 28, height: 28, borderRadius: '0.5rem' }}>↪</button>
+
+                        {/* 진행도 추적 시작 */}
+                        <button onClick={() => setIsTrackingProgress(!isTrackingProgress)}
+                          className="text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all"
+                          style={{ background: isTrackingProgress ? 'var(--color-rose)' : 'var(--color-warm-gray)', color: isTrackingProgress ? 'white' : 'var(--color-ink-mid)', border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+                          {isTrackingProgress ? '🎯' : '🎯'}
+                        </button>
+
+                        {/* 진행도 표시 (추적 중일 때만) */}
+                        {isTrackingProgress && (
+                          <>
+                            <button onClick={() => setCurrentRowNum(Math.max(1, currentRowNum - 1))}
+                              className="text-xs font-bold px-1.5 py-1 rounded-lg"
+                              style={{ background: 'var(--color-warm-gray)', color: 'var(--color-ink-mid)', border: '1px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.7rem' }}>
+                              ◀
+                            </button>
+                            <span className="text-xs font-bold" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-body)', minWidth: '40px', textAlign: 'center' }}>
+                              {currentRowNum}단
+                            </span>
+                            <button onClick={() => setCurrentRowNum(Math.min(chart.height, currentRowNum + 1))}
+                              className="text-xs font-bold px-1.5 py-1 rounded-lg"
+                              style={{ background: 'var(--color-warm-gray)', color: 'var(--color-ink-mid)', border: '1px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.7rem' }}>
+                              ▶
+                            </button>
+                          </>
+                        )}
+                      </>
+                    }
+                  />
                 </div>
-              </div>
-
-              {/* 차트 아래 우측 compact toolbar */}
-              <div className="flex justify-end items-center gap-2">
-                {/* 그리기 모드 */}
-                <div className="flex rounded-lg overflow-hidden"
-                  style={{ border: '1.5px solid var(--color-warm-border)' }}>
-                  {([
-                    { mode: 'pencil', icon: '✏️', tip: '그리기 (클릭·드래그)' },
-                    { mode: 'fill',   icon: '🪣', tip: '채우기 (인접 색상 채우기)' },
-                  ] as const).map(({ mode, icon, tip }) => (
-                    <button key={mode} onClick={() => setDrawMode(mode)} title={tip}
-                      style={{
-                        ...toolbarBtnStyle,
-                        width: 32, height: 28, borderRadius: 0, border: 'none',
-                        background: drawMode === mode ? 'var(--color-rose-light)' : 'var(--color-warm-gray)',
-                        color: drawMode === mode ? 'var(--color-rose-dark)' : 'var(--color-ink-mid)',
-                        fontSize: '0.9rem'
-                      }}>
-                      {icon}
-                    </button>
-                  ))}
-                </div>
-
-                {/* 대칭 모드 */}
-                <div className="flex rounded-lg overflow-hidden"
-                  style={{ border: '1.5px solid var(--color-warm-border)' }}>
-                  {([
-                    { mode: 'none',       icon: '✕',  tip: '대칭 없음' },
-                    { mode: 'horizontal', icon: '↔',  tip: '좌우 대칭' },
-                    { mode: 'vertical',   icon: '↕',  tip: '상하 대칭' },
-                    { mode: 'both',       icon: '✦',  tip: '전체 대칭' },
-                  ] as const).map(({ mode, icon, tip }) => (
-                    <button key={mode} onClick={() => setSymmetryMode(mode)} title={tip}
-                      style={{
-                        ...toolbarBtnStyle,
-                        width: 28, height: 28, borderRadius: 0, border: 'none',
-                        fontSize: '0.75rem',
-                        background: symmetryMode === mode ? 'var(--color-lavender-light)' : 'var(--color-warm-gray)',
-                        color: symmetryMode === mode ? '#6B4CA0' : 'var(--color-ink-mid)',
-                      }}>
-                      {icon}
-                    </button>
-                  ))}
-                </div>
-
-                {/* 재설정 */}
-                {chart.mode === 'image' && loadedImage && (
-                  <button onClick={() => setAppMode('image-upload')}
-                    title={language === 'ko' ? '격자 크기·색상 수 변경 후 재생성' : 'Regenerate'}
-                    className="text-xs font-bold px-2.5 py-1.5 rounded-lg"
-                    style={{ background: 'var(--color-warm-gray)', border: '1.5px solid var(--color-warm-border)', color: 'var(--color-ink-mid)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
-                    ⚙
-                  </button>
-                )}
-
-                {/* Undo/Redo */}
-                <button onClick={undo} title="실행 취소 (Ctrl+Z)"
-                  style={{ ...toolbarBtnStyle, width: 28, height: 28, borderRadius: '0.5rem' }}>↩</button>
-                <button onClick={redo} title="다시 실행 (Ctrl+Y)"
-                  style={{ ...toolbarBtnStyle, width: 28, height: 28, borderRadius: '0.5rem' }}>↪</button>
-
-                {/* 진행도 추적 시작 */}
-                <button onClick={() => setIsTrackingProgress(!isTrackingProgress)}
-                  className="text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all"
-                  style={{ background: isTrackingProgress ? 'var(--color-rose)' : 'var(--color-warm-gray)', color: isTrackingProgress ? 'white' : 'var(--color-ink-mid)', border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
-                  {isTrackingProgress ? '🎯' : '🎯'}
-                </button>
-
-                {/* 진행도 표시 (추적 중일 때만) */}
-                {isTrackingProgress && (
-                  <>
-                    <button onClick={() => setCurrentRowNum(Math.max(1, currentRowNum - 1))}
-                      className="text-xs font-bold px-1.5 py-1 rounded-lg"
-                      style={{ background: 'var(--color-warm-gray)', color: 'var(--color-ink-mid)', border: '1px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.7rem' }}>
-                      ◀
-                    </button>
-                    <span className="text-xs font-bold" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-body)', minWidth: '40px', textAlign: 'center' }}>
-                      {currentRowNum}단
-                    </span>
-                    <button onClick={() => setCurrentRowNum(Math.min(chart.height, currentRowNum + 1))}
-                      className="text-xs font-bold px-1.5 py-1 rounded-lg"
-                      style={{ background: 'var(--color-warm-gray)', color: 'var(--color-ink-mid)', border: '1px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.7rem' }}>
-                      ▶
-                    </button>
-                  </>
-                )}
               </div>
             </div>
           </div>

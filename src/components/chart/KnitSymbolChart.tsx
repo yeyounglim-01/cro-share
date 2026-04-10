@@ -28,9 +28,10 @@ interface Props {
   gaugeStitches?: number;  // 기본 20
   gaugeRows?: number;      // 기본 28
   currentRow?: number | null; // 진행도 추적 하이라이트 (0-indexed)
+  toolbarSlot?: React.ReactNode; // 줌 컨트롤 바 우측에 표시할 도구 모음
 }
 
-export default function KnitSymbolChart({ chartData, editable = false, compact = false, gaugeStitches = 20, gaugeRows = 28, currentRow = null }: Props) {
+export default function KnitSymbolChart({ chartData, editable = false, compact = false, gaugeStitches = 20, gaugeRows = 28, currentRow = null, toolbarSlot }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
@@ -271,20 +272,26 @@ export default function KnitSymbolChart({ chartData, editable = false, compact =
 
   return (
     <div>
-      <div className="flex gap-2 mb-3 items-center flex-wrap">
-        {[{ label: '+', fn: () => setZoom(z => Math.min(z * 1.25, 8)) },
-          { label: '−', fn: () => setZoom(z => Math.max(z * 0.8, 0.3)) },
-          { label: '↺', fn: () => { setZoom(1); setOffset({ x: 16, y: 16 }); } }
-        ].map(({ label, fn }) => (
-          <button key={label} onClick={fn}
-            className="w-8 h-8 rounded-xl text-sm font-bold transition-all hover:-translate-y-0.5"
-            style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', color: 'var(--color-ink-mid)', cursor: 'pointer' }}>
-            {label}
-          </button>
-        ))}
-        <span className="text-xs" style={{ color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)' }}>
-          {Math.round(zoom * 100)}% · {displayChart.width}코 × {displayChart.height}단
-        </span>
+      <div className="flex gap-2 mb-3 items-center justify-between flex-wrap">
+        {/* 왼쪽: 줌 컨트롤 */}
+        <div className="flex gap-2 items-center flex-wrap">
+          {[{ label: '+', fn: () => setZoom(z => Math.min(z * 1.25, 8)) },
+            { label: '−', fn: () => setZoom(z => Math.max(z * 0.8, 0.3)) },
+            { label: '↺', fn: () => { setZoom(1); setOffset({ x: 16, y: 16 }); } }
+          ].map(({ label, fn }) => (
+            <button key={label} onClick={fn}
+              className="w-8 h-8 rounded-xl text-sm font-bold transition-all hover:-translate-y-0.5"
+              style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', color: 'var(--color-ink-mid)', cursor: 'pointer' }}>
+              {label}
+            </button>
+          ))}
+          <span className="text-xs" style={{ color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)' }}>
+            {Math.round(zoom * 100)}% · {displayChart.width}코 × {displayChart.height}단
+          </span>
+        </div>
+
+        {/* 오른쪽: 도구 모음 (toolbarSlot) */}
+        {toolbarSlot && <div className="flex gap-2 items-center flex-wrap">{toolbarSlot}</div>}
       </div>
 
       <div ref={containerRef}

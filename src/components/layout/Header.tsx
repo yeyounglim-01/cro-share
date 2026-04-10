@@ -1,14 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import LanguageToggle from './LanguageToggle';
+import HowToModal from '@/components/help/HowToModal';
 import { useKnitChartStore } from '@/hooks/useKnitChartState';
 
 export default function Header() {
   const path = usePathname();
   const { language } = useKnitChartStore();
   const isKo = language === 'ko';
+  const [howToOpen, setHowToOpen] = useState(false);
 
   const navItems = isKo
     ? [
@@ -56,11 +59,20 @@ export default function Header() {
       </div>
 
       <div className="navbar-end flex gap-2">
+        <button
+          onClick={() => setHowToOpen(true)}
+          className="btn btn-ghost btn-sm btn-circle text-sm font-bold"
+          title={isKo ? '사용 가이드' : 'How To'}
+          style={{ color: 'var(--color-ink-mid)' }}>
+          ?
+        </button>
         <LanguageToggle />
         <Link href="/editor" className="btn btn-primary btn-sm text-xs font-bold">
           {startButtonText}
         </Link>
       </div>
+
+      {howToOpen && <HowToModal onClose={() => setHowToOpen(false)} />}
     </header>
   );
 }
