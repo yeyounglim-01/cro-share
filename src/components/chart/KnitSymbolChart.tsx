@@ -27,9 +27,10 @@ interface Props {
   compact?: boolean; // thumbnail mode
   gaugeStitches?: number;  // 기본 20
   gaugeRows?: number;      // 기본 28
+  currentRow?: number | null; // 진행도 추적 하이라이트 (0-indexed)
 }
 
-export default function KnitSymbolChart({ chartData, editable = false, compact = false, gaugeStitches = 20, gaugeRows = 28 }: Props) {
+export default function KnitSymbolChart({ chartData, editable = false, compact = false, gaugeStitches = 20, gaugeRows = 28, currentRow = null }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
@@ -38,11 +39,38 @@ export default function KnitSymbolChart({ chartData, editable = false, compact =
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0, ox: 0, oy: 0 });
   const { startDraw, continueDraw, endDraw } = useDrawTool();
+  const animationFrameRef = useRef<number | null>(null);
+  const [highlightOpacity, setHighlightOpacity] = useState(1);
   // editable 모드(에디터)에서만 스토어를 구독해 실시간 업데이트 반영.
   // 갤러리 모달·썸네일에서는 항상 chartData prop 사용 (버그 방지)
   const storeChart = useKnitChartStore(s => editable ? s.chart : null);
 
   const displayChart = storeChart ?? chartData;
+
+  // 깜빡임 애니메이션 (currentRow가 있을 때만)
+  useEffect(() => {
+    if (currentRow === null || currentRow === undefined) {
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      return;
+    }
+    let lastTime = Date.now();
+    const animate = () => {
+      const now = Date.now();
+      const elapsed = (now - lastTime) % 1000; // 1초 주기
+      setHighlightOpacity(0.3 + 0.5 * Math.sin((elapsed / 1000) * Math.PI * 2));
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+    animationFrameRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    };
+  }, [currentRow]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -67,13 +95,13 @@ export default function KnitSymbolChart({ chartData, editable = false, compact =
     ctx.fillRect(0, 0, totalW, totalH);
 
     for (let row = 0; row < height; row++) {
+      const py = row * ch;
       for (let col = 0; col < width; col++) {
         const cell = cells[row]?.[col];
         if (!cell) continue;
         const stitchId = cell.stitchId ?? 'k';
         const stitch = getStitch(stitchId);
         const px = lw + col * cw;
-        const py = row * ch;
 
         // 배경 채우기
         let bg = stitch.bgColor;
@@ -86,6 +114,12 @@ export default function KnitSymbolChart({ chartData, editable = false, compact =
         if (!compact || !cell.yarnColor) {
           drawStitchSymbol(ctx, stitchId, px, py, cw, ch, fg);
         }
+      }
+
+      // 진행도 추적 하이라이트 — 현재 단 행을 깜빡이는 색상으로 표시
+      if (currentRow !== null && currentRow !== undefined && row === currentRow) {
+        ctx.fillStyle = `rgba(201, 123, 107, ${highlightOpacity * 0.4})`;
+        ctx.fillRect(lw, py, width * cw, ch);
       }
     }
 
@@ -150,7 +184,7 @@ export default function KnitSymbolChart({ chartData, editable = false, compact =
         ctx.beginPath(); ctx.moveTo(0, r * ch); ctx.lineTo(width * cw, r * ch); ctx.stroke();
       }
     }
-  }, [displayChart, compact, gaugeStitches, gaugeRows]);
+  }, [displayChart, compact, gaugeStitches, gaugeRows, currentRow, highlightOpacity]);
 
   useEffect(() => { draw(); }, [draw]);
 

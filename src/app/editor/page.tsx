@@ -37,6 +37,8 @@ export default function EditorPage() {
   const [appMode, setAppMode] = useState<AppMode>('select');
   const [loadedImage, setLoadedImage] = useState<HTMLImageElement | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(null); // 에디터 내 이미지 프리뷰용
+  const [isTrackingProgress, setIsTrackingProgress] = useState(false);
+  const [currentRow, setCurrentRow] = useState(0);
   const { chart, setChart, isProcessing, setProcessing, gridWidth, gridHeight, colorCount,
     setGridWidth, setGridHeight, setColorCount, gaugeStitches, gaugeRows, setGaugeStitches, setGaugeRows,
     language, resetChart, updateYarnLabel, updateYarnColor, selectedYarnColor, setSelectedYarnColor,
@@ -380,9 +382,39 @@ export default function EditorPage() {
                 </p>
               </div>
             )}
-            <div className="flex-1"
-              style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', borderRadius: '1rem', padding: '1.25rem', boxShadow: '0 3px 16px rgba(92,51,23,0.06)' }}>
-              <KnitSymbolChart chartData={chart} editable={true} gaugeStitches={gaugeStitches} gaugeRows={gaugeRows} />
+            <div className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div
+                style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', borderRadius: '1rem', padding: '1.25rem', boxShadow: '0 3px 16px rgba(92,51,23,0.06)' }}>
+                <KnitSymbolChart chartData={chart} editable={true} gaugeStitches={gaugeStitches} gaugeRows={gaugeRows} currentRow={isTrackingProgress ? currentRow : null} />
+              </div>
+
+              {/* 진행도 추적 컨트롤 */}
+              <div
+                style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', borderRadius: '1rem', padding: '1rem', boxShadow: '0 3px 16px rgba(92,51,23,0.06)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <button onClick={() => setIsTrackingProgress(!isTrackingProgress)}
+                  className="text-xs font-bold px-3 py-2 rounded-lg transition-all"
+                  style={{ background: isTrackingProgress ? 'var(--color-rose)' : 'var(--color-warm-gray)', color: isTrackingProgress ? 'white' : 'var(--color-ink-mid)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+                  {isTrackingProgress ? '🎯 진행도 추적 중' : '시작하기'}
+                </button>
+
+                {isTrackingProgress && (
+                  <>
+                    <button onClick={() => setCurrentRow(Math.max(0, currentRow - 1))}
+                      className="text-sm font-bold px-2.5 py-1.5 rounded-lg"
+                      style={{ background: 'var(--color-warm-gray)', color: 'var(--color-ink-mid)', border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+                      ◀
+                    </button>
+                    <span className="text-sm font-bold" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-body)', minWidth: '60px', textAlign: 'center' }}>
+                      {chart.height - currentRow}단
+                    </span>
+                    <button onClick={() => setCurrentRow(Math.min(chart.height - 1, currentRow + 1))}
+                      className="text-sm font-bold px-2.5 py-1.5 rounded-lg"
+                      style={{ background: 'var(--color-warm-gray)', color: 'var(--color-ink-mid)', border: '1.5px solid var(--color-warm-border)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+                      ▶
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
