@@ -64,54 +64,131 @@ function makeGrid(w: number, h: number, fn: (r: number, c: number) => { stitchId
 }
 
 const COLORS = {
-  rose: '#E8A0A0', pink: '#F5C8D0', lavender: '#C8B0E0',
-  sage: '#A8C8A8', cream: '#F5ECD8', blue: '#90B8D8',
-  white: '#FFFFFF', darkRose: '#C06070',
+  cream: '#F5F2EB', ivory: '#E8E0D8', sand: '#D4C9BD',
+  charcoal: '#3C3C3C', taupe: '#8B7B70', terracotta: '#B8846D',
+  olive: '#7D8B6B', moss: '#6B7B5C', navy: '#3B4B5C',
+  copper: '#A67B4B', burgundy: '#8B5A4B', lavender: '#9B8BAB',
+  white: '#FFFFFF',
 };
 
 const MOCK_GALLERY: GalleryItem[] = [
   {
     id: 'mock-1',
-    title: '봄 체크 패턴',
-    author: '뜨개소녀',
-    tags: ['체크', '봄', '초급'],
-    likes: 142,
+    title: '미니멀 기하 삼각형',
+    author: 'minimalist_knit',
+    tags: ['기하학', '초급', '체크'],
+    likes: 526,
     likedByMe: false,
-    createdAt: '2026-03-20',
-    description: '봄에 어울리는 파스텔 체크 패턴이에요',
+    createdAt: '2026-04-05',
+    description: '모던한 느낌의 기하학적 삼각형 패턴. 뉴트럴톤으로 어떤 옷과도 어울립니다.',
     chart: {
       id: 'mock-1',
-      name: '봄 체크 패턴',
+      name: '미니멀 기하 삼각형',
       mode: 'image',
-      width: 16, height: 16,
+      width: 20, height: 20,
       yarnPalette: [
-        { id: 'A', color: COLORS.rose, label: 'A실', labelEn: 'Yarn A' },
-        { id: 'B', color: COLORS.cream, label: 'B실', labelEn: 'Yarn B' },
+        { id: 'A', color: COLORS.charcoal, label: '차콜', labelEn: 'Charcoal' },
+        { id: 'B', color: COLORS.ivory, label: '아이보리', labelEn: 'Ivory' },
       ],
-      cells: makeGrid(16, 16, (r, c) => makeCell('k',
-        (Math.floor(r / 4) + Math.floor(c / 4)) % 2 === 0 ? COLORS.rose : COLORS.cream
-      )),
+      cells: makeGrid(20, 20, (r, c) => {
+        const tri = ((r % 4) + (c % 4)) % 2;
+        return makeCell('k', tri === 0 ? COLORS.charcoal : COLORS.ivory);
+      }),
     },
   },
   {
     id: 'mock-2',
-    title: '라벤더 다이아몬드',
-    author: 'knitlover',
-    tags: ['다이아몬드', '중급', '레이스'],
-    likes: 89,
+    title: '그래디언트 톤온톤',
+    author: 'градиент_craft',
+    tags: ['스트라이프', '초급', '컬러워크'],
+    likes: 612,
     likedByMe: false,
-    createdAt: '2026-03-18',
+    createdAt: '2026-04-02',
+    description: '따뜻한 톤의 그래디언트. 부드럽고 우아한 색감 변화.',
     chart: {
       id: 'mock-2',
-      name: '라벤더 다이아몬드',
+      name: '그래디언트 톤온톤',
+      mode: 'image',
+      width: 24, height: 18,
+      yarnPalette: [
+        { id: 'A', color: COLORS.cream, label: 'A실', labelEn: 'Yarn A' },
+        { id: 'B', color: COLORS.sand, label: 'B실', labelEn: 'Yarn B' },
+        { id: 'C', color: COLORS.taupe, label: 'C실', labelEn: 'Yarn C' },
+      ],
+      cells: makeGrid(24, 18, (r) => {
+        if (r < 6) return makeCell('k', COLORS.cream);
+        if (r < 12) return makeCell('k', COLORS.sand);
+        return makeCell('k', COLORS.taupe);
+      }),
+    },
+  },
+  {
+    id: 'mock-3',
+    title: '테라코타 체크',
+    author: 'earthstone_knit',
+    tags: ['체크', '초급', '컬러워크'],
+    likes: 489,
+    likedByMe: false,
+    createdAt: '2026-03-31',
+    description: '따뜻하고 자연스러운 테라코타 컬러의 클래식 체크.',
+    chart: {
+      id: 'mock-3',
+      name: '테라코타 체크',
+      mode: 'image',
+      width: 18, height: 18,
+      yarnPalette: [
+        { id: 'A', color: COLORS.terracotta, label: '테라', labelEn: 'Terra' },
+        { id: 'B', color: COLORS.cream, label: '크림', labelEn: 'Cream' },
+      ],
+      cells: makeGrid(18, 18, (r, c) => {
+        const check = (Math.floor(r / 3) + Math.floor(c / 3)) % 2;
+        return makeCell('k', check === 0 ? COLORS.terracotta : COLORS.cream);
+      }),
+    },
+  },
+  {
+    id: 'mock-4',
+    title: '클래식 아이보리 케이블',
+    author: 'heritage_knit',
+    tags: ['케이블', '중급', '텍스처'],
+    likes: 734,
+    likedByMe: false,
+    createdAt: '2026-03-28',
+    description: '시간이 지나도 변하지 않는 아이보리 케이블 패턴. 정교한 텍스처 표현.',
+    chart: {
+      id: 'mock-4',
+      name: '아이보리 케이블',
       mode: 'draw',
-      width: 14, height: 18,
+      width: 14, height: 24,
       yarnPalette: [],
-      cells: makeGrid(14, 18, (r, c) => {
-        const cx = 7, cy = 9;
+      cells: makeGrid(14, 24, (r, c) => {
+        if (c <= 1 || c >= 12) return makeCell('p');
+        if (c >= 5 && c <= 8 && r % 8 === 0) return makeCell('2-2rc');
+        if (c >= 5 && c <= 8) return makeCell('k');
+        return makeCell('p');
+      }),
+    },
+  },
+  {
+    id: 'mock-5',
+    title: '올리브 다이아몬드 레이스',
+    author: 'nature_studio',
+    tags: ['레이스', '중급', '다이아몬드'],
+    likes: 398,
+    likedByMe: false,
+    createdAt: '2026-03-25',
+    description: '자연스러운 올리브 컬러의 정교한 레이스 다이아몬드.',
+    chart: {
+      id: 'mock-5',
+      name: '올리브 다이아몬드 레이스',
+      mode: 'draw',
+      width: 16, height: 20,
+      yarnPalette: [],
+      cells: makeGrid(16, 20, (r, c) => {
+        const cx = 8, cy = 10;
         const dist = Math.abs(r - cy) + Math.abs(c - cx);
         if (dist === 0) return makeCell('yo');
-        if (dist % 4 === 0 && dist <= 8) return makeCell('yo');
+        if (dist % 4 === 0 && dist <= 10) return makeCell('yo');
         if (dist % 4 === 1) return makeCell('k2tog');
         if (dist % 4 === 3) return makeCell('ssk');
         return makeCell('k');
@@ -119,148 +196,122 @@ const MOCK_GALLERY: GalleryItem[] = [
     },
   },
   {
-    id: 'mock-3',
-    title: '핑크 스트라이프',
-    author: '니트공방',
-    tags: ['스트라이프', '초급', '컬러워크'],
-    likes: 203,
+    id: 'mock-6',
+    title: '차콜 페어아일 노르딕',
+    author: 'nordic_studio',
+    tags: ['노르딕', '고급', '페어아일'],
+    likes: 567,
     likedByMe: false,
-    createdAt: '2026-03-15',
+    createdAt: '2026-03-22',
+    description: '모던한 해석의 노르딕 패턴. 차콜과 크림의 고전적 조합.',
     chart: {
-      id: 'mock-3',
-      name: '핑크 스트라이프',
+      id: 'mock-6',
+      name: '차콜 페어아일 노르딕',
       mode: 'image',
       width: 20, height: 20,
       yarnPalette: [
-        { id: 'A', color: COLORS.pink, label: 'A실', labelEn: 'Yarn A' },
-        { id: 'B', color: COLORS.lavender, label: 'B실', labelEn: 'Yarn B' },
-        { id: 'C', color: COLORS.white, label: 'C실', labelEn: 'Yarn C' },
+        { id: 'A', color: COLORS.charcoal, label: '차콜', labelEn: 'Charcoal' },
+        { id: 'B', color: COLORS.cream, label: '크림', labelEn: 'Cream' },
       ],
-      cells: makeGrid(20, 20, (r) => {
-        const stripe = r % 6;
-        const color = stripe < 2 ? COLORS.pink : stripe < 4 ? COLORS.lavender : COLORS.white;
-        return makeCell('k', color);
-      }),
-    },
-  },
-  {
-    id: 'mock-4',
-    title: '케이블 꼬임',
-    author: 'woolcraft',
-    tags: ['케이블', '고급', '텍스처'],
-    likes: 317,
-    likedByMe: false,
-    createdAt: '2026-03-10',
-    chart: {
-      id: 'mock-4',
-      name: '케이블 꼬임',
-      mode: 'draw',
-      width: 12, height: 20,
-      yarnPalette: [],
-      cells: makeGrid(12, 20, (r, c) => {
-        if (c >= 4 && c <= 7 && r % 6 === 0) return makeCell('2-2rc');
-        if (c >= 4 && c <= 7) return makeCell('k');
-        return makeCell('p');
-      }),
-    },
-  },
-  {
-    id: 'mock-5',
-    title: '세이지 물결',
-    author: '초록뜨개',
-    tags: ['물결', '중급', '레이스'],
-    likes: 76,
-    likedByMe: false,
-    createdAt: '2026-03-08',
-    chart: {
-      id: 'mock-5',
-      name: '세이지 물결',
-      mode: 'image',
-      width: 18, height: 14,
-      yarnPalette: [
-        { id: 'A', color: COLORS.sage, label: 'A실', labelEn: 'Yarn A' },
-        { id: 'B', color: COLORS.cream, label: 'B실', labelEn: 'Yarn B' },
-      ],
-      cells: makeGrid(18, 14, (r, c) => {
-        const wave = Math.sin((c + r * 2) * 0.5) > 0;
-        return makeCell('k', wave ? COLORS.sage : COLORS.cream);
-      }),
-    },
-  },
-  {
-    id: 'mock-6',
-    title: '하트 모티프',
-    author: 'heartknit',
-    tags: ['하트', '중급', '모티프'],
-    likes: 445,
-    likedByMe: false,
-    createdAt: '2026-03-05',
-    chart: {
-      id: 'mock-6',
-      name: '하트 모티프',
-      mode: 'image',
-      width: 14, height: 14,
-      yarnPalette: [
-        { id: 'A', color: COLORS.darkRose, label: 'A실', labelEn: 'Yarn A' },
-        { id: 'B', color: COLORS.cream, label: 'B실', labelEn: 'Yarn B' },
-      ],
-      cells: makeGrid(14, 14, (r, c) => {
-        const HEART = [
-          '00000000000000',
-          '00110011001100',
-          '01111011101110',
-          '01111111111110',
-          '01111111111110',
-          '00111111111100',
-          '00011111111000',
-          '00001111110000',
-          '00000111100000',
-          '00000011000000',
-          '00000000000000',
-        ];
-        const inHeart = HEART[r]?.[c] === '1';
-        return makeCell('k', inHeart ? COLORS.darkRose : COLORS.cream);
+      cells: makeGrid(20, 20, (r, c) => {
+        const pattern = (r % 5 === 0 && c % 4 === 0) || (r % 5 === 2 && c % 4 === 2);
+        return makeCell('k', pattern ? COLORS.cream : COLORS.charcoal);
       }),
     },
   },
   {
     id: 'mock-7',
-    title: '블루 페어아일',
-    author: 'isleknitter',
-    tags: ['페어아일', '고급', '노르딕'],
-    likes: 188,
+    title: '모스 격자 무늬',
+    author: 'geometric_knit',
+    tags: ['격자', '초급', '컬러워크'],
+    likes: 445,
     likedByMe: false,
-    createdAt: '2026-02-28',
+    createdAt: '2026-03-19',
+    description: '부드러운 모스 그린 격자 패턴. 세련되고 고급스러운 느낌.',
     chart: {
       id: 'mock-7',
-      name: '블루 페어아일',
+      name: '모스 격자 무늬',
       mode: 'image',
-      width: 16, height: 16,
+      width: 22, height: 16,
       yarnPalette: [
-        { id: 'A', color: COLORS.blue, label: 'A실', labelEn: 'Yarn A' },
-        { id: 'B', color: COLORS.white, label: 'B실', labelEn: 'Yarn B' },
+        { id: 'A', color: COLORS.moss, label: '모스', labelEn: 'Moss' },
+        { id: 'B', color: COLORS.ivory, label: '아이보리', labelEn: 'Ivory' },
       ],
-      cells: makeGrid(16, 16, (r, c) => {
-        const pat = (r + c) % 4 === 0 || (r % 4 === 2 && c % 4 === 2);
-        return makeCell('k', pat ? COLORS.white : COLORS.blue);
+      cells: makeGrid(22, 16, (r, c) => {
+        const grid = (Math.floor(r / 2) + Math.floor(c / 2)) % 2;
+        return makeCell('k', grid === 0 ? COLORS.moss : COLORS.ivory);
       }),
     },
   },
   {
     id: 'mock-8',
-    title: '고무뜨기 리브',
-    author: 'basicknit',
-    tags: ['리브', '초급', '기본'],
-    likes: 94,
+    title: '버건디 삼각형 모티프',
+    author: 'artisan_knit',
+    tags: ['모티프', '중급', '기하학'],
+    likes: 523,
     likedByMe: false,
-    createdAt: '2026-02-20',
+    createdAt: '2026-03-16',
+    description: '따뜻한 버건디 색상의 기하학적 삼각형 모티프 패턴.',
     chart: {
       id: 'mock-8',
-      name: '고무뜨기 리브',
+      name: '버건디 삼각형 모티프',
+      mode: 'image',
+      width: 18, height: 18,
+      yarnPalette: [
+        { id: 'A', color: COLORS.burgundy, label: '버건디', labelEn: 'Burgundy' },
+        { id: 'B', color: COLORS.cream, label: '크림', labelEn: 'Cream' },
+      ],
+      cells: makeGrid(18, 18, (r, c) => {
+        const tri = (r % 6 < 3) ? ((c % 6) < 3 ? 1 : 0) : ((c % 6) < 3 ? 0 : 1);
+        return makeCell('k', tri === 1 ? COLORS.burgundy : COLORS.cream);
+      }),
+    },
+  },
+  {
+    id: 'mock-9',
+    title: '라벤더 톤온톤 스트라이프',
+    author: 'soft_palette',
+    tags: ['스트라이프', '초급', '컬러워크'],
+    likes: 401,
+    likedByMe: false,
+    createdAt: '2026-03-13',
+    description: '부드러운 라벤더 컬러의 톤온톤 스트라이프. 우아한 느낌.',
+    chart: {
+      id: 'mock-9',
+      name: '라벤더 톤온톤',
+      mode: 'image',
+      width: 20, height: 14,
+      yarnPalette: [
+        { id: 'A', color: COLORS.lavender, label: '라벤더', labelEn: 'Lavender' },
+        { id: 'B', color: COLORS.cream, label: '크림', labelEn: 'Cream' },
+      ],
+      cells: makeGrid(20, 14, (r) => {
+        const stripe = r % 3;
+        return makeCell('k', stripe === 0 ? COLORS.lavender : COLORS.cream);
+      }),
+    },
+  },
+  {
+    id: 'mock-10',
+    title: '네이비 텍스처 케이블',
+    author: 'classic_studio',
+    tags: ['케이블', '중급', '텍스처'],
+    likes: 612,
+    likedByMe: false,
+    createdAt: '2026-03-10',
+    description: '진정성 있는 네이비 컬러의 정교한 텍스처 케이블.',
+    chart: {
+      id: 'mock-10',
+      name: '네이비 텍스처 케이블',
       mode: 'draw',
-      width: 10, height: 16,
+      width: 16, height: 20,
       yarnPalette: [],
-      cells: makeGrid(10, 16, (_, c) => makeCell(c % 2 === 0 ? 'k' : 'p')),
+      cells: makeGrid(16, 20, (r, c) => {
+        if (c <= 2 || c >= 13) return makeCell('p');
+        if (c >= 6 && c <= 9 && r % 6 === 0) return makeCell('2-2rc');
+        if (c >= 6 && c <= 9) return makeCell('k');
+        return makeCell('p');
+      }),
     },
   },
 ];
