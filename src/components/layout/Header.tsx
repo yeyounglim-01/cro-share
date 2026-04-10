@@ -3,9 +3,24 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import LanguageToggle from './LanguageToggle';
+import { useKnitChartStore } from '@/hooks/useKnitChartState';
 
 export default function Header() {
   const path = usePathname();
+  const { language } = useKnitChartStore();
+  const isKo = language === 'ko';
+
+  const navItems = isKo
+    ? [
+        { href: '/', label: '갤러리' },
+        { href: '/editor', label: '패턴 만들기' },
+      ]
+    : [
+        { href: '/', label: 'Gallery' },
+        { href: '/editor', label: 'Create Pattern' },
+      ];
+
+  const startButtonText = isKo ? '시작하기' : 'Get Started';
 
   return (
     <header className="navbar sticky top-0 z-50 bg-cream/95 backdrop-blur-sm border-b border-warm-border shadow-sm" style={{ borderColor: 'var(--color-warm-border)' }}>
@@ -22,21 +37,16 @@ export default function Header() {
 
       <div className="navbar-center">
         {/* 네비게이션 */}
-        <nav className="flex gap-1">
-          {[
-            { href: '/', label: '갤러리' },
-            { href: '/editor', label: '패턴 만들기' },
-          ].map(({ href, label }) => (
+        <nav className="flex gap-6">
+          {navItems.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
-              className={`btn btn-ghost btn-sm no-underline text-xs font-bold ${
-                path === href ? 'bg-rose-light' : ''
-              }`}
+              className="no-underline text-xs font-bold transition-colors"
               style={{
                 color: path === href ? 'var(--color-rose-dark)' : 'var(--color-ink-mid)',
                 fontFamily: 'var(--font-body)',
-                textTransform: 'none',
+                fontWeight: path === href ? 700 : 600,
               }}
             >
               {label}
@@ -48,7 +58,7 @@ export default function Header() {
       <div className="navbar-end flex gap-2">
         <LanguageToggle />
         <Link href="/editor" className="btn btn-primary btn-sm text-xs font-bold">
-          시작하기
+          {startButtonText}
         </Link>
       </div>
     </header>

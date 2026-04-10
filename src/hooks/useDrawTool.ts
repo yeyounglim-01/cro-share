@@ -86,7 +86,38 @@ export function useDrawTool() {
     }
   }, [chart, symmetryMode, applySingleCell]);
 
-  /** 플러드 필 (인접한 동일 색상/기호 칠하기) */
+  /** BFS 플러드 필 계산 — 업데이트할 좌표 목록만 반환 */
+  const computeFloodFillUpdates = useCallback((startRow: number, startCol: number, matchStitch: string, matchColor?: string): [number, number][] => {
+    if (!chart) return [];
+    if (startRow < 0 || startRow >= chart.height || startCol < 0 || startCol >= chart.width) return [];
+
+    const visited = new Set<string>();
+    const queue: [number, number][] = [[startRow, startCol]];
+    const updates: [number, number][] = [];
+
+    while (queue.length > 0) {
+      const [r, c] = queue.shift()!;
+      const k = `${r}-${c}`;
+      if (visited.has(k)) continue;
+      visited.add(k);
+
+      const cell = chart.cells[r]?.[c];
+      if (!cell) continue;
+      if (cell.stitchId !== matchStitch || cell.yarnColor !== matchColor) continue;
+
+      updates.push([r, c]);
+
+      for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+        const nr = r + dr, nc = c + dc;
+        if (nr >= 0 && nr < chart.height && nc >= 0 && nc < chart.width) {
+          queue.push([nr, nc]);
+        }
+      }
+    }
+    return updates;
+  }, [chart]);
+
+  /** 플러드 필 (인접한 동일 색상/기호 칠하기) — 대칭 적용 */
   const floodFill = useCallback((startRow: number, startCol: number, erase = false) => {
     if (!chart) return;
     const targetCell = chart.cells[startRow]?.[startCol];
@@ -109,39 +140,49 @@ export function useDrawTool() {
     const matchStitch = targetCell.stitchId;
     const matchColor = targetCell.yarnColor;
 
-    const visited = new Set<string>();
-    const queue: [number, number][] = [[startRow, startCol]];
-    const updates: [number, number][] = [];
+    // 모든 대칭 위치에서 업데이트 좌표 수집
+    const allUpdates = new Map<string, [number, number]>();
 
-    while (queue.length > 0) {
-      const [r, c] = queue.shift()!;
-      const k = `${r}-${c}`;
-      if (visited.has(k)) continue;
-      visited.add(k);
+    // 시작 위치
+    for (const [r, c] of computeFloodFillUpdates(startRow, startCol, matchStitch, matchColor)) {
+      allUpdates.set(`${r}-${c}`, [r, c]);
+    }
 
-      const cell = chart.cells[r]?.[c];
-      if (!cell) continue;
-      if (cell.stitchId !== matchStitch || cell.yarnColor !== matchColor) continue;
+    // 대칭 위치
+    const mRow = chart.height - 1 - startRow;
+    const mCol = chart.width - 1 - startCol;
 
-      updates.push([r, c]);
-
-      for (const [dr, dc] of [[-1,0],[1,0],[0,-1],[0,1]]) {
-        const nr = r + dr, nc = c + dc;
-        if (nr >= 0 && nr < chart.height && nc >= 0 && nc < chart.width) {
-          queue.push([nr, nc]);
+    if (symmetryMode === 'horizontal' || symmetryMode === 'both') {
+      if (mCol !== startCol) {
+        for (const [r, c] of computeFloodFillUpdates(startRow, mCol, matchStitch, matchColor)) {
+          allUpdates.set(`${r}-${c}`, [r, c]);
+        }
+      }
+    }
+    if (symmetryMode === 'vertical' || symmetryMode === 'both') {
+      if (mRow !== startRow) {
+        for (const [r, c] of computeFloodFillUpdates(mRow, startCol, matchStitch, matchColor)) {
+          allUpdates.set(`${r}-${c}`, [r, c]);
+        }
+      }
+    }
+    if (symmetryMode === 'both') {
+      if (mRow !== startRow && mCol !== startCol) {
+        for (const [r, c] of computeFloodFillUpdates(mRow, mCol, matchStitch, matchColor)) {
+          allUpdates.set(`${r}-${c}`, [r, c]);
         }
       }
     }
 
     // 배치 업데이트
     const newCells = chart.cells.map(row => row.map(cell => ({ ...cell })));
-    for (const [r, c] of updates) {
+    for (const [r, c] of allUpdates.values()) {
       const cell: ChartCell = { ...newCells[r][c], stitchId: applyStitch };
       if (applyColor !== undefined) cell.yarnColor = applyColor;
       newCells[r][c] = cell;
     }
     setChart({ ...chart, cells: newCells });
-  }, [chart, selectedStitchId, selectedYarnColor, setChart, saveHistory]);
+  }, [chart, selectedStitchId, selectedYarnColor, symmetryMode, setChart, saveHistory, computeFloodFillUpdates]);
 
   const startDraw = useCallback((row: number, col: number, erase = false) => {
     if (drawMode === 'fill') {

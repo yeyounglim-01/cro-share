@@ -16,6 +16,30 @@ export async function imageToColorChart(
   colorCount: number,
   chartName = '컬러워크 패턴'
 ): Promise<KnitChartData> {
+  // 양자화용 고해상도 샘플 추출 — 더 선명한 팔레트 생성
+  const SAMPLE_SIZE = 200;
+  const sampleWidth = Math.min(imageElement.naturalWidth, SAMPLE_SIZE);
+  const sampleHeight = Math.min(imageElement.naturalHeight, SAMPLE_SIZE);
+  const sampleCanvas = document.createElement('canvas');
+  sampleCanvas.width = sampleWidth;
+  sampleCanvas.height = sampleHeight;
+  const sCtx = sampleCanvas.getContext('2d')!;
+  sCtx.imageSmoothingEnabled = true;
+  sCtx.imageSmoothingQuality = 'high';
+  sCtx.drawImage(imageElement, 0, 0, sampleWidth, sampleHeight);
+
+  const sampleData = sCtx.getImageData(0, 0, sampleWidth, sampleHeight).data;
+  const samplePixels: RGB[] = [];
+  for (let i = 0; i < sampleData.length; i += 4) {
+    if (sampleData[i + 3] >= 128) {
+      samplePixels.push([sampleData[i], sampleData[i + 1], sampleData[i + 2]]);
+    }
+  }
+
+  // 고해상도 샘플로 팔레트 생성
+  const paletteRgb = quantizeColors(samplePixels.length > 0 ? samplePixels : [[255, 255, 255]], colorCount);
+
+  // 최종 도안 렌더링용 그리드 크기 캔버스
   const canvas = document.createElement('canvas');
   canvas.width = gridWidth;
   canvas.height = gridHeight;
@@ -31,8 +55,6 @@ export async function imageToColorChart(
   for (let i = 0; i < data.length; i += 4) {
     pixels.push(data[i + 3] < 128 ? [255, 255, 255] : [data[i], data[i + 1], data[i + 2]]);
   }
-
-  const paletteRgb = quantizeColors(pixels, colorCount);
   paletteRgb.sort((a, b) => luminance(a) - luminance(b));
 
   const yarnPalette: YarnColor[] = paletteRgb.map((rgb, i) => ({
