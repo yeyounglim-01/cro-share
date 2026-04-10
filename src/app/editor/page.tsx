@@ -176,7 +176,7 @@ export default function EditorPage() {
                 style={{ color: 'var(--color-ink-light)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
                 ← 새 패턴
               </button>
-              <span className="font-bold" style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink)' }}>
+              <span className="font-bold" style={{ fontFamily: 'var(--font-body)', color: 'var(--color-ink)' }}>
                 {chart.name}
               </span>
               <span className="text-xs px-2.5 py-1 rounded-full"
@@ -334,7 +334,7 @@ export default function EditorPage() {
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-10">
               <h1 className="text-4xl font-bold mb-3"
-                style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink)' }}>
+                style={{ fontFamily: 'var(--font-body)', color: 'var(--color-ink)' }}>
                 패턴 만들기
               </h1>
               <p className="text-sm" style={{ color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)' }}>
@@ -373,7 +373,7 @@ export default function EditorPage() {
                   }}>
                   <span className="text-5xl block mb-4">{opt.icon}</span>
                   <h3 className="text-xl font-bold mb-2"
-                    style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink)' }}>
+                    style={{ fontFamily: 'var(--font-body)', color: 'var(--color-ink)' }}>
                     {language === 'ko' ? opt.titleKo : opt.titleEn}
                   </h3>
                   <p className="text-sm leading-relaxed"
@@ -435,7 +435,7 @@ export default function EditorPage() {
               ← 뒤로
             </button>
             <div style={cardStyle} className="space-y-5">
-              <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink)' }}>
+              <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-body)', color: 'var(--color-ink)' }}>
                 {language === 'ko' ? '격자 설정' : 'Grid Settings'}
               </h2>
               <SliderField label={language === 'ko' ? '격자 너비 (코 수)' : 'Grid Width (stitches)'}
