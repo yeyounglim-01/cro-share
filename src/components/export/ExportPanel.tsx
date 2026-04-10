@@ -38,15 +38,15 @@ export default function ExportPanel() {
   };
 
   const cardStyle = {
-    background: 'var(--color-sage-light)',
-    border: '1.5px solid var(--color-sage)',
+    background: 'var(--color-blush)',
+    border: '1.5px solid var(--color-warm-border)',
     borderRadius: '1rem',
     padding: '1rem',
   };
 
   return (
     <div style={cardStyle} className="space-y-3">
-      <h3 className="text-lg font-bold" style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink)' }}>
+      <h3 className="text-lg font-bold" style={{ fontFamily: 'var(--font-body)', color: 'var(--color-ink)' }}>
         {language === 'ko' ? '저장하기' : 'Export'}
       </h3>
 

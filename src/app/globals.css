@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+/* ── DaisyUI primary 색상 강제 우선순위 ── */
+:root {
+  --color-primary: oklch(0.63 0.12 26.6) !important;
+  --color-primary-content: #ffffff !important;
+}
+
 @theme {
   /* Warm watercolor palette */
   --color-cream: #FAF6F1;
@@ -28,11 +34,6 @@
 @layer base {
   * { box-sizing: border-box; }
 
-  :root {
-    --color-primary: oklch(0.63 0.12 26.6);
-    --color-primary-content: #ffffff;
-  }
-
   html {
     font-family: var(--font-body);
     color: var(--color-ink);
@@ -46,7 +47,7 @@
   }
 
   h1, h2, h3 {
-    font-family: var(--font-serif);
+    font-family: var(--font-body);
   }
 }
 

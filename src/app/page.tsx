@@ -7,11 +7,18 @@ import PatternCard from '@/components/gallery/PatternCard';
 import PatternModal from '@/components/gallery/PatternModal';
 import CrochetSection from '@/components/crochet/CrochetSection';
 import { loadGallery, toggleLike, type GalleryItem } from '@/lib/gallery/store';
-
-const DIFFICULTY_TABS = ['전체', '초급', '중급', '고급'];
-const PATTERN_TYPES = ['체크', '레이스', '케이블', '컬러워크', '노르딕', '모티프'];
+import { useKnitChartStore } from '@/hooks/useKnitChartState';
 
 export default function GalleryPage() {
+  const { language } = useKnitChartStore();
+  const isKo = language === 'ko';
+
+  const DIFFICULTY_TABS = isKo
+    ? ['전체', '초급', '중급', '고급']
+    : ['All', 'Beginner', 'Intermediate', 'Advanced'];
+  const PATTERN_TYPES = isKo
+    ? ['체크', '레이스', '케이블', '컬러워크', '노르딕', '모티프']
+    : ['Check', 'Lace', 'Cable', 'Colorwork', 'Nordic', 'Motif'];
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [selectedDifficulty, setSelectedDifficulty] = useState('전체');
   const [selectedType, setSelectedType] = useState('체크');
@@ -102,7 +109,7 @@ export default function GalleryPage() {
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="패턴 이름, 작가, 태그 검색..."
+                placeholder={isKo ? '패턴 이름, 작가, 태그 검색...' : 'Search patterns, authors, tags...'}
                 className="grow outline-none"
                 style={{ fontFamily: 'var(--font-body)' }}
               />
@@ -112,7 +119,7 @@ export default function GalleryPage() {
           {/* 패턴 유형 섹션 */}
           <div className="mb-6">
             <p className="text-xs font-semibold mb-3" style={{ color: 'var(--color-ink-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              패턴 유형
+              {isKo ? '패턴 유형' : 'PATTERN TYPE'}
             </p>
             <div className="flex flex-wrap gap-x-6 gap-y-2">
               {PATTERN_TYPES.map(type => (
@@ -153,11 +160,11 @@ export default function GalleryPage() {
         {filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
             <div style={{ fontSize: 52, marginBottom: 16 }}>🧶</div>
-            <p style={{ fontSize: 18, fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--color-ink)', marginBottom: 8 }}>
-              패턴을 찾을 수 없어요
+            <p style={{ fontSize: 18, fontWeight: 700, fontFamily: 'var(--font-body)', color: 'var(--color-ink)', marginBottom: 8 }}>
+              {isKo ? '패턴을 찾을 수 없어요' : 'No patterns found'}
             </p>
             <p style={{ fontSize: 13, color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)' }}>
-              다른 검색어나 태그로 시도해보세요
+              {isKo ? '다른 검색어나 태그로 시도해보세요' : 'Try different keywords or tags'}
             </p>
           </div>
         ) : (
@@ -171,56 +178,22 @@ export default function GalleryPage() {
         {/* 코바늘 샘플 섹션 */}
         <CrochetSection />
 
-        {/* ── 패턴 공유 CTA ── */}
+        {/* ── Footer CTA ── */}
         <div style={{
           marginTop: 48,
-          borderRadius: 28,
-          padding: '44px 32px',
-          textAlign: 'center',
-          background: 'linear-gradient(135deg, #FFF0E8 0%, #F8E4F4 50%, #EEE8FF 100%)',
-          border: '1.5px solid var(--color-warm-border)',
-          position: 'relative',
-          overflow: 'hidden',
+          borderTop: '1px solid var(--color-warm-border)',
+          padding: '32px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}>
-          {/* 배경 장식 */}
-          <span style={{
-            position: 'absolute', right: 24, bottom: 16,
-            fontSize: 80, opacity: 0.06,
-            fontFamily: 'var(--font-sketch)',
-            pointerEvents: 'none', userSelect: 'none',
-          }}>🧶</span>
-
-          <div style={{ fontSize: 36, marginBottom: 12 }}>✨</div>
-          <h2 style={{
-            fontSize: 22, fontWeight: 700, fontFamily: 'var(--font-serif)',
-            color: 'var(--color-ink)', marginBottom: 8,
-          }}>
-            당신의 패턴을 공유해보세요
-          </h2>
-          <p style={{
-            fontSize: 13, color: 'var(--color-ink-mid)',
-            fontFamily: 'var(--font-body)', marginBottom: 24, lineHeight: 1.6,
-          }}>
-            직접 만든 도안을 갤러리에 올리고 다른 뜨개인들과 함께해요
-          </p>
-          <Link href="/editor" className="btn btn-primary">
-            패턴 만들기 →
+          <img src="/logo.png" alt="Cro-share" style={{ height: 40 }} />
+          <Link href="/editor" className="btn btn-primary btn-sm">
+            {isKo ? '시작하기 →' : 'Get Started →'}
           </Link>
         </div>
       </div>
       </div>
-
-      {/* ── 푸터 ── */}
-      <footer style={{
-        borderTop: '1px solid var(--color-warm-border)',
-        padding: '20px 24px',
-        textAlign: 'center',
-        fontFamily: 'var(--font-body)',
-      }}>
-        <p style={{ fontSize: 13, color: 'var(--color-ink-light)' }}>
-          Cro-share 🧶 대바늘 · 코바늘 패턴 메이커 · 무료 서비스
-        </p>
-      </footer>
 
       {/* 모달 */}
       {modalItem && (

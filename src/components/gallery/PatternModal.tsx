@@ -32,7 +32,7 @@ export default function PatternModal({ item, onClose }: Props) {
       style={{ background: 'rgba(60,30,10,0.5)', backdropFilter: 'blur(4px)' }}
       onClick={onClose}>
       <div
-        className="w-full max-w-2xl rounded-3xl overflow-hidden"
+        className="w-full max-w-2xl rounded-3xl"
         style={{
           background: 'var(--color-paper)',
           boxShadow: '0 20px 60px rgba(60,30,10,0.3)',
@@ -44,7 +44,7 @@ export default function PatternModal({ item, onClose }: Props) {
         <div className="flex items-center justify-between p-5 pb-0">
           <div>
             <h2 className="text-2xl font-bold"
-              style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink)' }}>
+              style={{ fontFamily: 'var(--font-body)', color: 'var(--color-ink)' }}>
               {item.title}
             </h2>
             <p className="text-sm mt-0.5" style={{ color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)' }}>
@@ -78,7 +78,7 @@ export default function PatternModal({ item, onClose }: Props) {
               <div key={label} className="text-center p-3 rounded-2xl"
                 style={{ background: 'var(--color-blush)' }}>
                 <p className="text-xs" style={{ color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)' }}>{label}</p>
-                <p className="text-lg font-bold" style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink)' }}>{value}</p>
+                <p className="text-lg font-bold" style={{ fontFamily: 'var(--font-body)', color: 'var(--color-ink)' }}>{value}</p>
               </div>
             ))}
           </div>

@@ -63,7 +63,7 @@ export default function PatternCard({ item, onLike, onOpen }: Props) {
       {/* ── 텍스트 영역 ── */}
       <div className="card-body p-3">
         <p
-          className="font-bold text-sm font-serif truncate"
+          className="font-bold text-sm truncate"
           style={{ color: 'var(--color-ink)', marginBottom: '3px' }}
         >
           {item.title}
