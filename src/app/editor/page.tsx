@@ -39,6 +39,8 @@ export default function EditorPage() {
   const [imageSrc, setImageSrc] = useState<string | null>(null); // 에디터 내 이미지 프리뷰용
   const [isTrackingProgress, setIsTrackingProgress] = useState(false);
   const [currentRowNum, setCurrentRowNum] = useState(1); // 현재 단 번호 (1부터 시작)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const { chart, setChart, isProcessing, setProcessing, gridWidth, gridHeight, colorCount,
     setGridWidth, setGridHeight, setColorCount, gaugeStitches, gaugeRows, setGaugeStitches, setGaugeRows,
     language, resetChart, updateYarnLabel, updateYarnColor, selectedYarnColor, setSelectedYarnColor,
@@ -51,6 +53,19 @@ export default function EditorPage() {
     if (chart) setAppMode('editor');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    if (!exportOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      const dropdown = document.querySelector('[data-export-dropdown]');
+      if (dropdown && !dropdown.contains(e.target as Node)) {
+        setExportOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [exportOpen]);
 
   // 이미지 선택 즉시 자동 생성 — 비율 보존 + 게이지 반영 격자 크기 자동 계산
   const handleImageReady = useCallback(async (img: HTMLImageElement) => {
@@ -183,58 +198,20 @@ export default function EditorPage() {
                 {chart.mode === 'image' ? '컬러워크' : '도트 그리기'}
               </span>
             </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              {/* 그리기 모드 */}
-              <div className="flex rounded-lg overflow-hidden"
-                style={{ border: '1.5px solid var(--color-warm-border)' }}>
-                {([
-                  { mode: 'pencil', icon: '✏️', tip: '그리기 (클릭·드래그)' },
-                  { mode: 'fill',   icon: '🪣', tip: '채우기 (인접 색상 채우기)' },
-                ] as const).map(({ mode, icon, tip }) => (
-                  <button key={mode} onClick={() => setDrawMode(mode)} title={tip}
-                    style={{
-                      ...toolbarBtnStyle,
-                      width: 34, height: 30, borderRadius: 0, border: 'none',
-                      background: drawMode === mode ? 'var(--color-rose-light)' : 'var(--color-warm-gray)',
-                      color: drawMode === mode ? 'var(--color-rose-dark)' : 'var(--color-ink-mid)',
-                    }}>
-                    {icon}
-                  </button>
-                ))}
-              </div>
-
-              {/* 대칭 모드 */}
-              <div className="flex rounded-lg overflow-hidden"
-                style={{ border: '1.5px solid var(--color-warm-border)' }}>
-                {([
-                  { mode: 'none',       icon: '✕',  tip: '대칭 없음' },
-                  { mode: 'horizontal', icon: '↔',  tip: '좌우 대칭' },
-                  { mode: 'vertical',   icon: '↕',  tip: '상하 대칭' },
-                  { mode: 'both',       icon: '✦',  tip: '전체 대칭' },
-                ] as const).map(({ mode, icon, tip }) => (
-                  <button key={mode} onClick={() => setSymmetryMode(mode)} title={tip}
-                    style={{
-                      ...toolbarBtnStyle,
-                      width: 30, height: 30, borderRadius: 0, border: 'none',
-                      fontSize: '0.8rem',
-                      background: symmetryMode === mode ? 'var(--color-lavender-light)' : 'var(--color-warm-gray)',
-                      color: symmetryMode === mode ? '#6B4CA0' : 'var(--color-ink-mid)',
-                    }}>
-                    {icon}
-                  </button>
-                ))}
-              </div>
-
-              {chart.mode === 'image' && loadedImage && (
-                <button onClick={() => setAppMode('image-upload')}
-                  title={language === 'ko' ? '격자 크기·색상 수 변경 후 재생성' : 'Regenerate'}
-                  className="text-xs font-bold px-2 h-8 rounded-lg"
-                  style={{ background: 'var(--color-warm-gray)', border: '1.5px solid var(--color-warm-border)', color: 'var(--color-ink-mid)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
-                  ⚙ {language === 'ko' ? '재설정' : 'Reset'}
-                </button>
+            {/* 우측: 내보내기 드롭다운 */}
+            <div style={{ position: 'relative' }} data-export-dropdown>
+              <button onClick={() => setExportOpen(!exportOpen)}
+                className="px-3 py-2 rounded-lg text-sm font-bold transition-all"
+                style={{ background: 'var(--color-rose)', color: 'white', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+                📥 {language === 'ko' ? '내보내기' : 'Export'} ▾
+              </button>
+              {exportOpen && (
+                <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 4px)', zIndex: 50,
+                  background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)',
+                  borderRadius: '0.75rem', boxShadow: '0 4px 16px rgba(92,51,23,0.15)', overflow: 'hidden' }}>
+                  <ExportPanel />
+                </div>
               )}
-              <button onClick={undo} title="실행 취소 (Ctrl+Z)" style={toolbarBtnStyle}>↩</button>
-              <button onClick={redo} title="다시 실행 (Ctrl+Y)" style={toolbarBtnStyle}>↪</button>
             </div>
           </div>
 
@@ -343,27 +320,114 @@ export default function EditorPage() {
             </div>
           )}
 
-          {/* 메인 영역: 원본 이미지(있을 때) + 차트 */}
-          <div className="flex gap-4 p-4 items-start">
-            {chart.mode === 'image' && imageSrc && (
-              <div className="flex-shrink-0 w-40"
-                style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', borderRadius: '1rem', padding: '0.75rem', boxShadow: '0 3px 16px rgba(92,51,23,0.06)' }}>
-                <p className="text-xs font-bold mb-2" style={{ color: 'var(--color-ink-mid)', fontFamily: 'var(--font-body)' }}>
-                  {language === 'ko' ? '원본 이미지' : 'Source'}
-                </p>
-                <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-warm-border)' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={imageSrc} alt="원본 이미지" style={{ width: '100%', display: 'block', objectFit: 'contain' }} />
-                </div>
-                <p className="text-xs mt-2" style={{ color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)', lineHeight: 1.4 }}>
-                  {language === 'ko' ? '색상 참고용' : 'Color reference'}
-                </p>
+          {/* 메인 영역: 좌측 사이드바 + 우측 차트 */}
+          <div className="flex" style={{ minHeight: 'calc(100vh - 280px)', background: 'var(--color-cream)' }}>
+            {/* 좌측 사이드바 (열고닫기) */}
+            <div style={{ width: sidebarOpen ? 260 : 0, flexShrink: 0, overflow: 'hidden',
+              transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1)',
+              borderRight: sidebarOpen ? '1.5px solid var(--color-warm-border)' : 'none',
+              background: 'var(--color-paper)' }}>
+              <div style={{ width: 260, padding: '1.5rem', maxHeight: '100%', overflowY: 'auto' }}>
+                <PatternText />
               </div>
-            )}
-            <div className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div
-                style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', borderRadius: '1rem', padding: '1.25rem', boxShadow: '0 3px 16px rgba(92,51,23,0.06)' }}>
-                <KnitSymbolChart chartData={chart} editable={true} gaugeStitches={gaugeStitches} gaugeRows={gaugeRows} currentRow={isTrackingProgress ? chart.height - currentRowNum : null} />
+            </div>
+
+            {/* 사이드바 토글 탭 */}
+            <button onClick={() => setSidebarOpen(!sidebarOpen)}
+              title={sidebarOpen ? '텍스트 패턴 닫기' : '텍스트 패턴 열기'}
+              style={{ width: 20, flexShrink: 0, alignSelf: 'stretch', background: 'var(--color-warm-gray)',
+                borderRight: '1.5px solid var(--color-warm-border)', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.6rem', color: 'var(--color-ink-light)', border: 'none', transition: 'background 0.2s' }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-ink-light)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-warm-gray)'}>
+              {sidebarOpen ? '◀' : '▶'}
+            </button>
+
+            {/* 오른쪽 메인 영역 */}
+            <div className="flex-1 p-4 flex flex-col gap-3" style={{ overflowY: 'auto' }}>
+              {/* 차트 + 원본 이미지 */}
+              <div className="flex gap-4 items-start">
+                {chart.mode === 'image' && imageSrc && (
+                  <div className="flex-shrink-0 w-40"
+                    style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', borderRadius: '1rem', padding: '0.75rem', boxShadow: '0 3px 16px rgba(92,51,23,0.06)' }}>
+                    <p className="text-xs font-bold mb-2" style={{ color: 'var(--color-ink-mid)', fontFamily: 'var(--font-body)' }}>
+                      {language === 'ko' ? '원본 이미지' : 'Source'}
+                    </p>
+                    <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-warm-border)' }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={imageSrc} alt="원본 이미지" style={{ width: '100%', display: 'block', objectFit: 'contain' }} />
+                    </div>
+                    <p className="text-xs mt-2" style={{ color: 'var(--color-ink-light)', fontFamily: 'var(--font-body)', lineHeight: 1.4 }}>
+                      {language === 'ko' ? '색상 참고용' : 'Color reference'}
+                    </p>
+                  </div>
+                )}
+                <div className="flex-1"
+                  style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', borderRadius: '1rem', padding: '1.25rem', boxShadow: '0 3px 16px rgba(92,51,23,0.06)' }}>
+                  <KnitSymbolChart chartData={chart} editable={true} gaugeStitches={gaugeStitches} gaugeRows={gaugeRows} currentRow={isTrackingProgress ? chart.height - currentRowNum : null} />
+                </div>
+              </div>
+
+              {/* 차트 아래 우측 compact toolbar */}
+              <div className="flex justify-end items-center gap-2">
+                {/* 그리기 모드 */}
+                <div className="flex rounded-lg overflow-hidden"
+                  style={{ border: '1.5px solid var(--color-warm-border)' }}>
+                  {([
+                    { mode: 'pencil', icon: '✏️', tip: '그리기 (클릭·드래그)' },
+                    { mode: 'fill',   icon: '🪣', tip: '채우기 (인접 색상 채우기)' },
+                  ] as const).map(({ mode, icon, tip }) => (
+                    <button key={mode} onClick={() => setDrawMode(mode)} title={tip}
+                      style={{
+                        ...toolbarBtnStyle,
+                        width: 32, height: 28, borderRadius: 0, border: 'none',
+                        background: drawMode === mode ? 'var(--color-rose-light)' : 'var(--color-warm-gray)',
+                        color: drawMode === mode ? 'var(--color-rose-dark)' : 'var(--color-ink-mid)',
+                        fontSize: '0.9rem'
+                      }}>
+                      {icon}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 대칭 모드 */}
+                <div className="flex rounded-lg overflow-hidden"
+                  style={{ border: '1.5px solid var(--color-warm-border)' }}>
+                  {([
+                    { mode: 'none',       icon: '✕',  tip: '대칭 없음' },
+                    { mode: 'horizontal', icon: '↔',  tip: '좌우 대칭' },
+                    { mode: 'vertical',   icon: '↕',  tip: '상하 대칭' },
+                    { mode: 'both',       icon: '✦',  tip: '전체 대칭' },
+                  ] as const).map(({ mode, icon, tip }) => (
+                    <button key={mode} onClick={() => setSymmetryMode(mode)} title={tip}
+                      style={{
+                        ...toolbarBtnStyle,
+                        width: 28, height: 28, borderRadius: 0, border: 'none',
+                        fontSize: '0.75rem',
+                        background: symmetryMode === mode ? 'var(--color-lavender-light)' : 'var(--color-warm-gray)',
+                        color: symmetryMode === mode ? '#6B4CA0' : 'var(--color-ink-mid)',
+                      }}>
+                      {icon}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 재설정 */}
+                {chart.mode === 'image' && loadedImage && (
+                  <button onClick={() => setAppMode('image-upload')}
+                    title={language === 'ko' ? '격자 크기·색상 수 변경 후 재생성' : 'Regenerate'}
+                    className="text-xs font-bold px-2.5 py-1.5 rounded-lg"
+                    style={{ background: 'var(--color-warm-gray)', border: '1.5px solid var(--color-warm-border)', color: 'var(--color-ink-mid)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+                    ⚙
+                  </button>
+                )}
+
+                {/* Undo/Redo */}
+                <button onClick={undo} title="실행 취소 (Ctrl+Z)"
+                  style={{ ...toolbarBtnStyle, width: 28, height: 28, borderRadius: '0.5rem' }}>↩</button>
+                <button onClick={redo} title="다시 실행 (Ctrl+Y)"
+                  style={{ ...toolbarBtnStyle, width: 28, height: 28, borderRadius: '0.5rem' }}>↪</button>
               </div>
 
               {/* 진행도 추적 컨트롤 */}
@@ -394,12 +458,6 @@ export default function EditorPage() {
                 )}
               </div>
             </div>
-          </div>
-
-          {/* 하단 패널: 패턴 텍스트 + 내보내기 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4 pb-8">
-            <div style={cardStyle}><PatternText /></div>
-            <div style={cardStyle}><ExportPanel /></div>
           </div>
         </div>
       )}
