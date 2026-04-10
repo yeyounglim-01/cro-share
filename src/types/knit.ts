@@ -35,6 +35,8 @@ export interface KnitChartData {
   height: number;
   cells: ChartCell[][];
   yarnPalette: YarnColor[];
+  gaugeStitches?: number;  // 기본 20 (10cm 당 코수)
+  gaugeRows?: number;      // 기본 28 (10cm 당 단수)
 }
 
 export interface PatternRow {

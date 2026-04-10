@@ -7,8 +7,7 @@ import { drawStitchSymbol } from '@/lib/knitting/drawStitchSymbol';
 import { useDrawTool } from '@/hooks/useDrawTool';
 import { useKnitChartStore } from '@/hooks/useKnitChartState';
 
-const CELL_W = 22;
-const CELL_H = 26;
+const CELL_H = 22;  // 단 높이 (고정)
 const LEGEND_W = 36;
 const LEGEND_H = 22;
 
@@ -26,9 +25,11 @@ interface Props {
   chartData: KnitChartData;
   editable?: boolean;
   compact?: boolean; // thumbnail mode
+  gaugeStitches?: number;  // 기본 20
+  gaugeRows?: number;      // 기본 28
 }
 
-export default function KnitSymbolChart({ chartData, editable = false, compact = false }: Props) {
+export default function KnitSymbolChart({ chartData, editable = false, compact = false, gaugeStitches = 20, gaugeRows = 28 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
@@ -50,8 +51,10 @@ export default function KnitSymbolChart({ chartData, editable = false, compact =
     if (!ctx) return;
 
     const { width, height, cells, yarnPalette } = displayChart;
-    const cw = compact ? 10 : CELL_W;
-    const ch = compact ? 12 : CELL_H;
+    // 게이지 반영 cellW 계산: CELL_H × (gaugeRows / gaugeStitches)
+    const CELL_W = Math.round(CELL_H * (gaugeRows / gaugeStitches));
+    const cw = compact ? Math.round(10 * (gaugeRows / gaugeStitches)) : CELL_W;
+    const ch = compact ? 10 : CELL_H;
     const lw = compact ? 0 : LEGEND_W;
     const lh = compact ? 0 : LEGEND_H;
     const totalW = width * cw + lw;
@@ -147,7 +150,7 @@ export default function KnitSymbolChart({ chartData, editable = false, compact =
         ctx.beginPath(); ctx.moveTo(0, r * ch); ctx.lineTo(width * cw, r * ch); ctx.stroke();
       }
     }
-  }, [displayChart, compact]);
+  }, [displayChart, compact, gaugeStitches, gaugeRows]);
 
   useEffect(() => { draw(); }, [draw]);
 
@@ -194,11 +197,12 @@ export default function KnitSymbolChart({ chartData, editable = false, compact =
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
+    const CELL_W = Math.round(CELL_H * (gaugeRows / gaugeStitches));  // 게이지 반영
     const col = Math.floor(((e.clientX - rect.left) * scaleX - LEGEND_W) / CELL_W);
     const row = Math.floor(((e.clientY - rect.top) * scaleY) / CELL_H);
     if (col < 0 || col >= displayChart.width || row < 0 || row >= displayChart.height) return null;
     return { row, col };
-  }, [displayChart]);
+  }, [displayChart, gaugeStitches, gaugeRows]);
 
   const onMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     // 이동 모드: Space 누른 채 드래그, 또는 비편집 모드

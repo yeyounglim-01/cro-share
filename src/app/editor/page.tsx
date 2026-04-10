@@ -38,8 +38,8 @@ export default function EditorPage() {
   const [loadedImage, setLoadedImage] = useState<HTMLImageElement | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(null); // 에디터 내 이미지 프리뷰용
   const { chart, setChart, isProcessing, setProcessing, gridWidth, gridHeight, colorCount,
-    setGridWidth, setGridHeight, setColorCount, language, resetChart,
-    updateYarnLabel, updateYarnColor, selectedYarnColor, setSelectedYarnColor,
+    setGridWidth, setGridHeight, setColorCount, gaugeStitches, gaugeRows, setGaugeStitches, setGaugeRows,
+    language, resetChart, updateYarnLabel, updateYarnColor, selectedYarnColor, setSelectedYarnColor,
     drawMode, setDrawMode, symmetryMode, setSymmetryMode } = useKnitChartStore();
   const { undo, redo } = useDrawTool();
 
@@ -66,21 +66,23 @@ export default function EditorPage() {
     setTimeout(() => setShared(false), 3000);
   }, [chart]);
 
-  // 이미지 선택 즉시 자동 생성 — 비율 보존 격자 크기 자동 계산
+  // 이미지 선택 즉시 자동 생성 — 비율 보존 + 게이지 반영 격자 크기 자동 계산
   const handleImageReady = useCallback(async (img: HTMLImageElement) => {
     setLoadedImage(img);
     setImageSrc(img.src);
 
-    // 이미지 비율에 맞게 격자 크기 자동 설정
+    // 이미지 비율과 게이지 비율을 모두 반영한 격자 크기 자동 설정
     const ratio = img.naturalWidth / img.naturalHeight;
+    const gRatio = gaugeStitches / gaugeRows;  // 게이지 비율 (코/단)
+    const R_corrected = ratio * gRatio;        // 보정된 비율
     const MAX = 40;
     let autoW: number, autoH: number;
-    if (ratio >= 1) {
+    if (R_corrected >= 1) {
       autoW = MAX;
-      autoH = Math.max(10, Math.min(80, Math.round(MAX / ratio)));
+      autoH = Math.max(10, Math.min(80, Math.round(MAX / R_corrected)));
     } else {
       autoH = MAX;
-      autoW = Math.max(10, Math.min(80, Math.round(MAX * ratio)));
+      autoW = Math.max(10, Math.min(80, Math.round(MAX * R_corrected)));
     }
     setGridWidth(autoW);
     setGridHeight(autoH);
@@ -89,7 +91,7 @@ export default function EditorPage() {
     setAppMode('image-upload');
     try {
       const data = await imageToColorChart(img, autoW, autoH, colorCount);
-      setChart(data);
+      setChart({ ...data, gaugeStitches, gaugeRows });
       if (data.yarnPalette.length > 0) setSelectedYarnColor(data.yarnPalette[0].color);
       setAppMode('editor');
     } catch (e) {
@@ -97,14 +99,14 @@ export default function EditorPage() {
     } finally {
       setProcessing(false);
     }
-  }, [colorCount, setChart, setProcessing, setSelectedYarnColor, setGridWidth, setGridHeight]);
+  }, [colorCount, gaugeStitches, gaugeRows, setChart, setProcessing, setSelectedYarnColor, setGridWidth, setGridHeight]);
 
   const handleGenerateFromImage = useCallback(async () => {
     if (!loadedImage) return;
     setProcessing(true);
     try {
       const data = await imageToColorChart(loadedImage, gridWidth, gridHeight, colorCount);
-      setChart(data);
+      setChart({ ...data, gaugeStitches, gaugeRows });
       if (data.yarnPalette.length > 0) setSelectedYarnColor(data.yarnPalette[0].color);
       setAppMode('editor');
     } catch (e) {
@@ -112,7 +114,18 @@ export default function EditorPage() {
     } finally {
       setProcessing(false);
     }
-  }, [loadedImage, gridWidth, gridHeight, colorCount, setChart, setProcessing, setSelectedYarnColor]);
+  }, [loadedImage, gridWidth, gridHeight, colorCount, gaugeStitches, gaugeRows, setChart, setProcessing, setSelectedYarnColor]);
+
+  // W 슬라이더 비율 연동: W 변경 시 H도 비율에 맞게 자동 조정
+  const handleWidthChange = useCallback((v: number) => {
+    setGridWidth(v);
+    if (loadedImage) {
+      const ratio = loadedImage.naturalWidth / loadedImage.naturalHeight;
+      const gRatio = gaugeStitches / gaugeRows;
+      const R_corrected = ratio * gRatio;
+      setGridHeight(Math.max(10, Math.min(80, Math.round(v / R_corrected))));
+    }
+  }, [loadedImage, gaugeStitches, gaugeRows, setGridWidth, setGridHeight]);
 
   const handleCreateBlank = useCallback(() => {
     const cells: ChartCell[][] = Array.from({ length: gridHeight }, () =>
@@ -315,7 +328,7 @@ export default function EditorPage() {
             )}
             <div className="flex-1"
               style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-warm-border)', borderRadius: '1rem', padding: '1.25rem', boxShadow: '0 3px 16px rgba(92,51,23,0.06)' }}>
-              <KnitSymbolChart chartData={chart} editable={true} />
+              <KnitSymbolChart chartData={chart} editable={true} gaugeStitches={gaugeStitches} gaugeRows={gaugeRows} />
             </div>
           </div>
 
@@ -404,11 +417,15 @@ export default function EditorPage() {
                   <img src={loadedImage.src} alt="업로드된 이미지" className="w-full" style={{ display: 'block', objectFit: 'contain' }}/>
                 </div>
                 <SliderField label={language === 'ko' ? '격자 너비 (코 수)' : 'Grid Width (stitches)'}
-                  value={gridWidth} min={10} max={80} onChange={setGridWidth} format={v => `${v}코`} />
+                  value={gridWidth} min={10} max={80} onChange={handleWidthChange} format={v => `${v}코`} />
                 <SliderField label={language === 'ko' ? '격자 높이 (단 수)' : 'Grid Height (rows)'}
                   value={gridHeight} min={10} max={80} onChange={setGridHeight} format={v => `${v}단`} />
                 <SliderField label={language === 'ko' ? '실 색상 수' : 'Yarn Colors'}
                   value={colorCount} min={2} max={10} onChange={setColorCount} format={v => `${v}가지`} />
+                <SliderField label={language === 'ko' ? '게이지 코 수 (10cm)' : 'Gauge Stitches (per 10cm)'}
+                  value={gaugeStitches} min={10} max={40} onChange={setGaugeStitches} format={v => `${v}코`} />
+                <SliderField label={language === 'ko' ? '게이지 단 수 (10cm)' : 'Gauge Rows (per 10cm)'}
+                  value={gaugeRows} min={10} max={50} onChange={setGaugeRows} format={v => `${v}단`} />
                 <div className="flex gap-3">
                   <button onClick={() => { setLoadedImage(null); }}
                     className="flex-1 py-2.5 rounded-2xl font-bold text-sm"

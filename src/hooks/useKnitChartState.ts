@@ -10,6 +10,8 @@ interface KnitChartStore {
   gridWidth: number;
   gridHeight: number;
   colorCount: number;
+  gaugeStitches: number;  // 10cm 당 코수 (기본 20)
+  gaugeRows: number;      // 10cm 당 단수 (기본 28)
 
   setChart: (chart: KnitChartData) => void;
   setLanguage: (lang: Language) => void;
@@ -17,6 +19,8 @@ interface KnitChartStore {
   setGridWidth: (v: number) => void;
   setGridHeight: (v: number) => void;
   setColorCount: (v: number) => void;
+  setGaugeStitches: (v: number) => void;
+  setGaugeRows: (v: number) => void;
 
   updateCell: (row: number, col: number, cell: Partial<ChartCell>) => void;
   updateYarnColor: (id: string, color: string) => void;
@@ -43,6 +47,8 @@ export const useKnitChartStore = create<KnitChartStore>((set) => ({
   gridWidth: 30,
   gridHeight: 30,
   colorCount: 5,
+  gaugeStitches: 20,
+  gaugeRows: 28,
   selectedStitchId: 'k',
   selectedYarnColor: '#C97B6B',
   drawMode: 'pencil',
@@ -54,6 +60,8 @@ export const useKnitChartStore = create<KnitChartStore>((set) => ({
   setGridWidth: (gridWidth) => set({ gridWidth }),
   setGridHeight: (gridHeight) => set({ gridHeight }),
   setColorCount: (colorCount) => set({ colorCount }),
+  setGaugeStitches: (gaugeStitches) => set({ gaugeStitches }),
+  setGaugeRows: (gaugeRows) => set({ gaugeRows }),
   setSelectedStitchId: (selectedStitchId) => set({ selectedStitchId }),
   setSelectedYarnColor: (selectedYarnColor) => set({ selectedYarnColor }),
   setDrawMode: (drawMode) => set({ drawMode }),
