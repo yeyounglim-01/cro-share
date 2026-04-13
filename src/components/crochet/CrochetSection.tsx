@@ -42,7 +42,7 @@ export default function CrochetSection() {
       <div className="mt-12">
         <div className="flex items-center gap-3 mb-5">
           <h2 className="text-xl font-bold"
-            style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink)' }}>
+            style={{ fontFamily: 'var(--font-body)', color: 'var(--color-ink)' }}>
             코바늘 도안 샘플
           </h2>
           <span className="text-xs px-2.5 py-1 rounded-full font-bold"
@@ -91,7 +91,7 @@ export default function CrochetSection() {
 
           <div className="p-3">
             <p className="font-bold text-sm"
-              style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink)' }}>
+              style={{ fontFamily: 'var(--font-body)', color: 'var(--color-ink)' }}>
               네잎클로버 모티프
             </p>
             <p className="text-xs mt-0.5"
@@ -127,7 +127,7 @@ export default function CrochetSection() {
             <div className="flex items-center justify-between p-5 pb-0">
               <div>
                 <h2 className="text-2xl font-bold"
-                  style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink)' }}>
+                  style={{ fontFamily: 'var(--font-body)', color: 'var(--color-ink)' }}>
                   네잎클로버 모티프 🍀
                 </h2>
                 <p className="text-sm mt-0.5"

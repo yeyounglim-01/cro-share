@@ -58,9 +58,44 @@ export default function GalleryPage() {
   const heroOpacity = Math.max(0, 1 - scrollY / 350);
   const heroTranslateY = scrollY * 0.3;
 
+  // 화살표 색상: 스크롤 0~350px 구간에서 흰색(255,255,255) → 잉크(92,51,23) 선형 보간
+  const arrowProgress = Math.min(1, scrollY / 350);
+  const arrowR = Math.round(255 - (255 - 92) * arrowProgress);
+  const arrowG = Math.round(255 - (255 - 51) * arrowProgress);
+  const arrowB = Math.round(255 - (255 - 23) * arrowProgress);
+  const arrowColor = `rgb(${arrowR},${arrowG},${arrowB})`;
+  const arrowBorderColor = `rgba(${arrowR},${arrowG},${arrowB},0.5)`;
+
   return (
     <div style={{ background: 'var(--color-cream)' }}>
       <Header />
+
+      {/* ── Hero 화살표 버튼 (우측 하단 고정) ── */}
+      <Link
+        href="/editor"
+        aria-label="에디터로 이동"
+        style={{
+          position: 'fixed',
+          bottom: '2.25rem',
+          right: '2.25rem',
+          zIndex: 15,
+          width: 52,
+          height: 52,
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: `1.5px solid ${arrowBorderColor}`,
+          color: arrowColor,
+          fontSize: '1.3rem',
+          textDecoration: 'none',
+          opacity: heroOpacity,
+          pointerEvents: heroOpacity < 0.05 ? 'none' : 'auto',
+          backdropFilter: 'blur(4px)',
+        }}
+      >
+        →
+      </Link>
 
       {/* ── Apple 스타일 풀스크린 Hero ── */}
       <section
