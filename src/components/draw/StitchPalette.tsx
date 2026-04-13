@@ -100,7 +100,7 @@ export default function StitchPalette({ horizontal = false }: StitchPaletteProps
   /* ── 세로 패널 모드 (기존) ── */
   return (
     <div className="space-y-3">
-      <h3 className="text-lg font-bold" style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink)' }}>
+      <h3 className="text-lg font-bold" style={{ fontFamily: 'var(--font-body)', color: 'var(--color-ink)' }}>
         {language === 'ko' ? '기호 선택' : 'Stitch Palette'}
       </h3>
 

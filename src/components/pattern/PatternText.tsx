@@ -26,7 +26,7 @@ export default function PatternText() {
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-bold" style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink)' }}>
+        <h3 className="text-lg font-bold" style={{ fontFamily: 'var(--font-body)', color: 'var(--color-ink)' }}>
           {language === 'ko' ? '텍스트 패턴' : 'Pattern Instructions'}
         </h3>
         <button
