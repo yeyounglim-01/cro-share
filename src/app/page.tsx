@@ -58,8 +58,13 @@ export default function GalleryPage() {
   const heroOpacity = Math.max(0, 1 - scrollY / 350);
   const heroTranslateY = scrollY * 0.3;
 
-  // 화살표 색상: 스크롤 0~180px 구간에서 흰색 → 다크 잉크로 전환
-  const arrowProgress = Math.min(1, scrollY / 180);
+  // 화살표 색상: 스크롤 0~350px 구간에서 흰색(255,255,255) → 잉크(92,51,23) 선형 보간
+  const arrowProgress = Math.min(1, scrollY / 350);
+  const arrowR = Math.round(255 - (255 - 92) * arrowProgress);
+  const arrowG = Math.round(255 - (255 - 51) * arrowProgress);
+  const arrowB = Math.round(255 - (255 - 23) * arrowProgress);
+  const arrowColor = `rgb(${arrowR},${arrowG},${arrowB})`;
+  const arrowBorderColor = `rgba(${arrowR},${arrowG},${arrowB},0.5)`;
 
   return (
     <div style={{ background: 'var(--color-cream)' }}>
@@ -80,14 +85,13 @@ export default function GalleryPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: `1.5px solid ${arrowProgress < 0.5 ? 'rgba(255,255,255,0.55)' : 'rgba(92,51,23,0.35)'}`,
-          color: arrowProgress < 0.5 ? 'rgba(255,255,255,0.9)' : 'var(--color-ink)',
+          border: `1.5px solid ${arrowBorderColor}`,
+          color: arrowColor,
           fontSize: '1.3rem',
           textDecoration: 'none',
           opacity: heroOpacity,
           pointerEvents: heroOpacity < 0.05 ? 'none' : 'auto',
           backdropFilter: 'blur(4px)',
-          transition: 'border-color 0.35s ease, color 0.35s ease',
         }}
       >
         →
